@@ -214,6 +214,10 @@ public class ApiKeyValidator : IApiKeyValidator
                     _logger.LogError("System '{SystemName}' is NOT registered in UAC API systems: [{Systems}]", systemName, string.Join(", ", systems ?? new List<string>()));
                     return false;
                 }
+                else
+                {
+                    _logger.LogWarning("UAC API node {Endpoint} returned HTTP {StatusCode} when querying systems", baseUrl, (int)response.StatusCode);
+                }
             }
             catch (Exception ex)
             {

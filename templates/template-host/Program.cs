@@ -2,8 +2,15 @@ using McpGateway.Core.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using McpGateway.__Department__.Host.Tools;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 配置 Serilog (讀取 appsettings.json 組態，支援 Console + 每日滾動檔案輸出)
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
 
 // 1. 註冊 McpGateway 核心基礎設施 (認證、健康檢查、指標、連線階段隔離)
 builder.Services.AddMcpGateway();

@@ -101,17 +101,17 @@ pwsh .\templates\scaffold.ps1 `
     -Port 5200 `
     -AuthProvider API-KEY `
     -UseConsul $true `
-    -Solution `
+    -Solution $true `
     -OutDir .. `
     -DryRun
 
-# 2. 正式產生部門方案骨架
+# 2. 正式產生部門方案骨架 (-UseConsul 與 -Solution 預設皆為 $true，亦可省略)
 pwsh .\templates\scaffold.ps1 `
     -Department fab2 `
     -Port 5200 `
     -AuthProvider API-KEY `
     -UseConsul $true `
-    -Solution `
+    -Solution $true `
     -OutDir ..
 ```
 

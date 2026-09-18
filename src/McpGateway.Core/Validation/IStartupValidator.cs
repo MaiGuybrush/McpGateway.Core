@@ -38,9 +38,25 @@ public class StartupValidationException : Exception
     /// </summary>
     /// <param name="errors">The list of validation errors.</param>
     public StartupValidationException(IReadOnlyList<ValidationError> errors) 
-        : base($"Startup validation failed with {errors.Count} error(s). See Errors property for details.")
+        : base(FormatMessage(errors))
     {
         Errors = errors;
+    }
+
+    private static string FormatMessage(IReadOnlyList<ValidationError> errors)
+    {
+        if (errors == null || errors.Count == 0)
+        {
+            return "Startup validation failed with 0 errors.";
+        }
+
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"Startup validation failed with {errors.Count} error(s):");
+        foreach (var error in errors)
+        {
+            sb.Append($"\n  - [{error.ToolName}] ({error.FileLocation}): {error.Description}");
+        }
+        return sb.ToString();
     }
 
     /// <summary>

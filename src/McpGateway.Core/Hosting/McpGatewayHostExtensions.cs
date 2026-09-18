@@ -276,7 +276,12 @@ public static class McpGatewayHostExtensions
 
         if (allErrors.Count > 0)
         {
-            logger.LogError("Gateway startup validation failed with {Count} errors", allErrors.Count);
+            logger.LogError("Gateway startup validation failed with {Count} error(s):", allErrors.Count);
+            foreach (var error in allErrors)
+            {
+                logger.LogError("  - [{ToolName}] ({FileLocation}): {Description}", 
+                    error.ToolName, error.FileLocation, error.Description);
+            }
             throw new StartupValidationException(allErrors);
         }
 
