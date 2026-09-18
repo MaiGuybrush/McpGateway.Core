@@ -35,8 +35,8 @@ public class McpGatewayOptionsValidator : IValidateOptions<McpGatewayOptions>
         if (!options.RoutePrefix.Equals(expectedRoutePrefix, StringComparison.OrdinalIgnoreCase) &&
             !options.RoutePrefix.Equals(expectedMcpRoutePrefix, StringComparison.OrdinalIgnoreCase))
         {
-            _logger.LogWarning("RoutePrefix '{RoutePrefix}' does not match recommended format '{ExpectedRoutePrefix}' or '{ExpectedMcpRoutePrefix}'. Consider using '/{Department}/mcp' for consistency", 
-                options.RoutePrefix, expectedRoutePrefix, expectedMcpRoutePrefix, options.Department);
+            _logger.LogWarning("RoutePrefix '{RoutePrefix}' does not match recommended format '{ExpectedRoutePrefix}' or '{ExpectedMcpRoutePrefix}'. Consider using '{RecommendedMcpRoutePrefix}' for consistency", 
+                options.RoutePrefix, expectedRoutePrefix, expectedMcpRoutePrefix, expectedMcpRoutePrefix);
         }
 
         return ValidateOptionsResult.Success;
