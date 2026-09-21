@@ -63,8 +63,11 @@ public class McpSubsystemBuilder
             _toolTypes.Add(toolType);
         }
 
-        // Register tool with the underlying MCP Server builder
-        Services.AddMcpServer().WithTools(new[] { toolType });
+        // Register tool with the underlying MCP Server builder.
+        // 必須顯式轉型為 IEnumerable<Type>，否則 Type[] 會被 C# 重載解析選中泛型重載
+        // WithTools<TToolType>(builder, TToolType target)，把整個陣列當成單一 tool 容器型別反射，
+        // 導致掃描不到 [McpServerTool] 方法而註冊 0 個工具。
+        Services.AddMcpServer().WithTools((IEnumerable<Type>)new[] { toolType });
 
         return this;
     }
