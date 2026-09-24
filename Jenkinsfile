@@ -14,7 +14,7 @@
 //   - docs/README.md 須包含目前版本號（0.1.0-preview）
 //   - pack 專案 csproj 不得含 ProjectReference / 本機 DLL HintPath（ADR-015 以 None+Pack 合併，符合）
 
-@Library('jenkins-pipeline-library') _
+@Library('jenkins-pipeline-library@release/stable') _
 
 dotnetPkgPipeline(
     useSolutionFile: 'McpGateway.Core.sln',  // restore/build/test 跑整個 sln（test 專案編譯但不進套件）

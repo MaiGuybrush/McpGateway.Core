@@ -7,14 +7,18 @@
     <LangVersion>latest</LangVersion>
 
     <PackageId>McpGateway.Core</PackageId>
-    <Version>0.1.0-preview</Version>
+    <Version>0.2.0-preview</Version>
     <Authors>Platform Team</Authors>
     <Company>Internal</Company>
     <Description>MCP Gateway shared library providing authentication, audit, validation, and transport functionality for department gateways (McpGateway.Report, McpGateway.Spc, McpGateway.Qc)</Description>
     <PackageTags>MCP;ModelContextProtocol;Gateway;AI;Tools</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <!-- 不在 build 時 pack：Core 與 Analyzers 無 ProjectReference（ADR-015），
+         GeneratePackageOnBuild 會在 sln 平行建置時先於 Analyzers 觸發 pack，
+         干淨 workspace 下 Analyzers.dll 尚未產出 → NU5019 競態。
+         改由 dotnetPkgPipeline 的 Package 階段（dotnet pack，no-build）於整個 sln build 完成後打包。 -->
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageOutputPath>../../artifacts/packages</PackageOutputPath>
   </PropertyGroup>
 
