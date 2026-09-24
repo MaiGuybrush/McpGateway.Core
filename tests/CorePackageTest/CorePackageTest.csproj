@@ -5,6 +5,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- 測試專案一律不打包：避免 dotnet pack sln 誤產測試套件推上內部 feed（並消除 NU5104 穩定版依賴 prerelease 警告） -->
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
