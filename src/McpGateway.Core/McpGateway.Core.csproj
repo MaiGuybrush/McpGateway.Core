@@ -28,6 +28,8 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
+    <!-- ADR-015：合併打包 Analyzers（免 ProjectReference）。CI 先 build 整個 sln，pack 階段 dll 已存在於 bin -->
+    <None Include="..\McpGateway.Analyzers\bin\$(Configuration)\netstandard2.0\McpGateway.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" />
   </ItemGroup>
 
 </Project>

@@ -4,7 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <IsPackable>true</IsPackable>
+    <!-- ADR-015：不再獨立發布，改由 McpGateway.Core 單一套件合併帶出（analyzers/dotnet/cs） -->
+    <IsPackable>false</IsPackable>
     <PackageId>McpGateway.Analyzers</PackageId>
     <Version>0.1.0-preview</Version>
     <Authors>Platform Team</Authors>
