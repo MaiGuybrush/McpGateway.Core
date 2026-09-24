@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- ADR-015：Roslyn 分析器已隨 McpGateway.Core 套件（analyzers/dotnet/cs）帶出，無需另裝 McpGateway.Analyzers -->
     <PackageReference Include="McpGateway.Core" Version="__CoreVersion__" />
-    <PackageReference Include="McpGateway.Analyzers" Version="__CoreVersion__" PrivateAssets="all" />
     <PackageReference Include="Consul" Version="1.6.10.9" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />

@@ -222,8 +222,8 @@ McpGateway.Core/
 - **`csproj` 參考定義**：
   ```xml
   <ItemGroup>
+    <!-- ADR-015：Roslyn 分析器已隨 McpGateway.Core 套件（analyzers/dotnet/cs）帶出，無需另裝 McpGateway.Analyzers -->
     <PackageReference Include="McpGateway.Core" Version="__CoreVersion__" />
-    <PackageReference Include="McpGateway.Analyzers" Version="__CoreVersion__" PrivateAssets="all" />
   </ItemGroup>
   ```
 
@@ -388,8 +388,8 @@ pwsh .\McpGateway.Core\templates\scaffold.ps1 `
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- ADR-015：分析器隨 Core 帶出 -->
     <PackageReference Include="McpGateway.Core" Version="0.2.0-preview" />
-    <PackageReference Include="McpGateway.Analyzers" Version="0.2.0-preview" PrivateAssets="all" />
   </ItemGroup>
 </Project>
 ```

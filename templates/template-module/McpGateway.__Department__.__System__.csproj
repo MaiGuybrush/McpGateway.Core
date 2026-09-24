@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- ADR-015：Roslyn 分析器已隨 McpGateway.Core 套件（analyzers/dotnet/cs）帶出，無需另裝 McpGateway.Analyzers -->
     <PackageReference Include="McpGateway.Core" Version="__CoreVersion__" />
-    <PackageReference Include="McpGateway.Analyzers" Version="__CoreVersion__" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
     <PackageReference Include="Consul" Version="1.6.10.9" />
