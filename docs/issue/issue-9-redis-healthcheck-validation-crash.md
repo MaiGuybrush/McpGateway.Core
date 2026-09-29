@@ -126,9 +126,10 @@ if (!string.IsNullOrEmpty(tokenCacheConnectionString))
 
 ## 6. 驗收標準
 
-- [ ] `Issue9RedisHealthCheckValidationTests.AddMcpGateway_WithEmptyRedisConnectionString_PassesValidateOnBuild` 通過
-- [ ] `Issue9RedisHealthCheckValidationTests.AddMcpGateway_WithNullRedisConnectionString_PassesValidateOnBuild` 通過
-- [ ] `ASPNETCORE_ENVIRONMENT=Development`、`TokenCache.ConnectionString` 為空字串時，任意 Host 啟動不再拋出 `AggregateException`
-- [ ] `/health` 各端點（`gateway_live` / `gateway_ready`）在 Redis 未配置時回傳 `Healthy`，訊息包含 "Redis not configured"
-- [ ] 移除 `ConfigureServices` 中途 `BuildServiceProvider()` 後，既有測試（含 Subsystem/Auth/Downstream 相關整合測試）全數通過
-- [ ] 下游 `McpGateway.Qsys.Host` 的 Redis workaround 設定可安全移除並驗證仍正常啟動
+- [x] `Issue9RedisHealthCheckValidationTests.AddMcpGateway_WithEmptyRedisConnectionString_PassesValidateOnBuild` 通過
+- [x] `Issue9RedisHealthCheckValidationTests.AddMcpGateway_WithNullRedisConnectionString_PassesValidateOnBuild` 通過
+- [x] `ASPNETCORE_ENVIRONMENT=Development`、`TokenCache.ConnectionString` 為空字串時，任意 Host 啟動不再拋出 `AggregateException`（以 `ValidateOnBuild=true, ValidateScopes=true` 之 `ServiceProvider` 重現測試等效驗證；未實測真正的 `McpGateway.Qsys.Host` 啟動）
+- [x] `/health` 各端點（`gateway_live` / `gateway_ready`）在 Redis 未配置時回傳 `Healthy`，訊息包含 "Redis not configured"（新增 `GatewayReadinessHealthCheck_WithoutRedisConfigured_ReportsHealthyWithRedisNotConfiguredMessage` 驗證 `RedisHealthCheck` 本身；注意 `gateway_ready` 整體狀態仍取決於 JWKS/UAC API 檢查是否配置，與本次修復無關）
+- [x] 移除 `ConfigureServices` 中途 `BuildServiceProvider()` 後，既有測試（含 Subsystem/Auth/Downstream 相關整合測試）全數通過（`McpGateway.Core.IntegrationTests` 31/31 通過）
+- [ ] 下游 `McpGateway.Qsys.Host` 的 Redis workaround 設定可安全移除並驗證仍正常啟動（不在本 repo 範圍內，需於 `McpGateway.Qsys.Host` 專案另行處理）
+

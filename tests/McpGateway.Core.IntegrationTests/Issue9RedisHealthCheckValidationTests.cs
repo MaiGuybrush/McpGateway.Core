@@ -1,7 +1,10 @@
 using System.Threading;
+using System.Threading.Tasks;
 using McpGateway.Core.Hosting;
+using McpGateway.Core.Observability;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Xunit;
 
@@ -62,5 +65,17 @@ public class Issue9RedisHealthCheckValidationTests
     {
         using var provider = BuildProvider(null);
         Assert.NotNull(provider);
+    }
+
+    [Fact]
+    public async Task GatewayReadinessHealthCheck_WithoutRedisConfigured_ReportsHealthyWithRedisNotConfiguredMessage()
+    {
+        using var provider = BuildProvider(string.Empty);
+        var check = provider.GetRequiredService<RedisHealthCheck>();
+
+        var result = await check.CheckHealthAsync(new HealthCheckContext());
+
+        Assert.Equal(HealthStatus.Healthy, result.Status);
+        Assert.Contains("Redis not configured", result.Description);
     }
 }
