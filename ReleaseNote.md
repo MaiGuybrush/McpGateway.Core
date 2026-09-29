@@ -1,6 +1,13 @@
 # Release notes
 
+## 0.2.1-preview
+
+**程式優化與錯誤修復 (Enhancements & Bug Fixes)**
+1. **修復 Redis 未配置時啟動崩潰（[Issue #9](docs/issue/issue-9-redis-healthcheck-validation-crash.md)）**：`TokenCache.ConnectionString` 為空字串或未設定時，`RedisHealthCheck` 建構子參數改為預設 `= null`，使 DI 容器將 `IConnectionMultiplexer` 視為可選依賴，避免 Development 環境 `ValidateOnBuild` 拋出 `AggregateException` 導致啟動崩潰。
+2. 移除 `AddMcpGateway()` 中途呼叫 `services.BuildServiceProvider()` 的暫時容器反模式，改直接讀取既有 `IConfiguration` 實例解析 `TokenCache.ConnectionString`。
+
 ## 0.2.0-preview
+
 
 **功能更新 (Features & Enhancements)**
 1. **單一套件合併發布（[ADR-015](docs/architecture/adr/ADR-015-single-package-analyzers-merge.md)）**：`McpGateway.Analyzers` 不再獨立發布，改由 `McpGateway.Core` 套件經 `analyzers/dotnet/cs/` 一併帶出。部門專案安裝 `McpGateway.Core` 即同時取得執行期庫與 Roslyn 分析器，編譯時自動生效，無需另外安裝 `McpGateway.Analyzers`。
