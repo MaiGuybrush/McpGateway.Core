@@ -16,10 +16,11 @@ public class RedisHealthCheck : IHealthCheck
     private readonly IConnectionMultiplexer? _redisConnection;
     private readonly ILogger<RedisHealthCheck> _logger;
 
-    public RedisHealthCheck(IConnectionMultiplexer? redisConnection, ILogger<RedisHealthCheck> logger)
+    // Default null lets the DI container treat IConnectionMultiplexer as optional when Redis is not configured (ValidateOnBuild would otherwise fail).
+    public RedisHealthCheck(IConnectionMultiplexer? redisConnection = null, ILogger<RedisHealthCheck>? logger = null)
     {
         _redisConnection = redisConnection;
-        _logger = logger;
+        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<RedisHealthCheck>.Instance;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(

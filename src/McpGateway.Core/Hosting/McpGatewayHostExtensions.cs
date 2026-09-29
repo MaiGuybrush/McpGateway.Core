@@ -76,16 +76,22 @@ public static class McpGatewayHostExtensions
             .AddCheck<GatewayHealthChecks>("gateway_live", tags: new[] { "live" })
             .AddCheck<GatewayReadinessHealthCheck>("gateway_ready", tags: new[] { "ready" });
 
-        // Register Redis for token cache with circuit breaker and degradation
-        var tokenCache = services.BuildServiceProvider().GetRequiredService<IOptions<McpGatewayOptions>>().Value.TokenCache;
-        if (!string.IsNullOrEmpty(tokenCache?.ConnectionString))
+        // Register Redis for token cache with circuit breaker and degradation.
+        // Read the connection string from the already-registered IConfiguration instance instead of
+        // building a temporary ServiceProvider (which would create duplicate singleton instances).
+        var configuration = services
+            .Where(d => d.ServiceType == typeof(IConfiguration))
+            .Select(d => d.ImplementationInstance as IConfiguration)
+            .LastOrDefault(c => c != null);
+        var tokenCacheConnectionString = configuration?["McpGateway:TokenCache:ConnectionString"];
+        if (!string.IsNullOrEmpty(tokenCacheConnectionString))
         {
             services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<RedisTokenCacheService>>();
                 try
                 {
-                    return ConnectionMultiplexer.Connect(tokenCache.ConnectionString);
+                    return ConnectionMultiplexer.Connect(tokenCacheConnectionString);
                 }
                 catch (Exception ex)
                 {
