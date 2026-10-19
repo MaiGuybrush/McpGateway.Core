@@ -70,14 +70,19 @@ public sealed class ConsulKvDownstreamResolver : IDownstreamUrlResolver
 
     private async Task<string> ResolveFromConsulOrFallbackAsync(CancellationToken cancellationToken)
     {
+        var fallbackUrl = _options.FallbackBaseUrls?.Find(u => !string.IsNullOrWhiteSpace(u))
+            ?? "http://api.corp.local/__department__/__system__";
+
+        if (string.IsNullOrWhiteSpace(_options.ConsulKvKey))
+        {
+            _logger.LogWarning("未設定 ConsulKvKey，略過 Consul 查詢並直接回退至 FallbackBaseUrl: {FallbackUrl}", fallbackUrl);
+            return fallbackUrl;
+        }
+
+        var kvKey = _options.ConsulKvKey;
         var consulUrls = (_gatewayOptions.Consul?.Urls ?? new List<string>())
             .Where(u => !string.IsNullOrWhiteSpace(u))
             .ToList();
-        var kvKey = string.IsNullOrWhiteSpace(_options.ConsulKvKey)
-            ? "McpGateway/__department__/systems/__system__/Downstream/BaseUrl"
-            : _options.ConsulKvKey;
-        var fallbackUrl = _options.FallbackBaseUrls?.Find(u => !string.IsNullOrWhiteSpace(u))
-            ?? "http://api.corp.local/__department__/__system__";
 
         foreach (var consulUrl in consulUrls)
         {
