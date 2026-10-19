@@ -1,8 +1,10 @@
 using System;
-using System.Text;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Consul;
+using McpGateway.Core.Configuration;
 using McpGateway.__Department__.__System__.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -10,62 +12,106 @@ using Microsoft.Extensions.Options;
 namespace McpGateway.__Department__.__System__.Services;
 
 /// <summary>
-/// 範例 1：從 Consul Key-Value 取得 downstream base url（支援多節點容錯與本地 Fallback）。
+/// 透過 Consul HTTP API（<c>?raw</c>）動態解析 Downstream BaseUrl，實作方式比照
+/// Core <c>UacApiEndpointResolver</c>（見 ADR-013）：不使用 Consul NuGet 套件的 <c>IConsulClient</c>，
+/// 直接用 <see cref="HttpClient"/> 打 Consul KV 端點，支援多節點依序容錯、5 分鐘結果快取，以及本地 Fallback。
+/// Consul 叢集節點位址讀取共用的 <see cref="McpGatewayOptions.Consul"/>（與其他子系統共用同一份清單）。
 /// </summary>
-public class ConsulKvDownstreamResolver : IDownstreamUrlResolver
+public sealed class ConsulKvDownstreamResolver : IDownstreamUrlResolver
 {
+    private readonly HttpClient _httpClient;
     private readonly __System__Options _options;
+    private readonly McpGatewayOptions _gatewayOptions;
     private readonly ILogger<ConsulKvDownstreamResolver> _logger;
-    private readonly Func<string, IConsulClient> _consulClientFactory;
+
+    private readonly SemaphoreSlim _lock = new(1, 1);
+    private string? _cachedBaseUrl;
+    private DateTime _lastResolvedUtc = DateTime.MinValue;
+    private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(5);
 
     public ConsulKvDownstreamResolver(
+        HttpClient httpClient,
         IOptions<__System__Options> options,
-        ILogger<ConsulKvDownstreamResolver> logger,
-        Func<string, IConsulClient>? consulClientFactory = null)
+        IOptions<McpGatewayOptions> gatewayOptions,
+        ILogger<ConsulKvDownstreamResolver> logger)
     {
+        _httpClient = httpClient;
         _options = options.Value;
+        _gatewayOptions = gatewayOptions.Value;
         _logger = logger;
-        _consulClientFactory = consulClientFactory ?? (url => new ConsulClient(cfg => cfg.Address = new Uri(url)));
     }
 
     /// <inheritdoc />
     public async Task<string> ResolveBaseUrlAsync(CancellationToken cancellationToken = default)
     {
-        var consulUrls = _options.Consul?.Urls;
-        var kvKey = _options.Consul?.KvKey ?? "McpGateway/__department__/systems/__system__/Downstream/BaseUrl";
-        var fallbackUrl = _options.Downstream?.BaseUrl ?? "http://api.corp.local/__department__/__system__";
-
-        if (consulUrls == null || consulUrls.Count == 0)
+        if (_cachedBaseUrl != null && (DateTime.UtcNow - _lastResolvedUtc) < _cacheDuration)
         {
-            return fallbackUrl;
+            return _cachedBaseUrl;
         }
 
-        foreach (var url in consulUrls)
+        await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
         {
-            if (string.IsNullOrWhiteSpace(url)) continue;
+            if (_cachedBaseUrl != null && (DateTime.UtcNow - _lastResolvedUtc) < _cacheDuration)
+            {
+                return _cachedBaseUrl;
+            }
 
+            var baseUrl = await ResolveFromConsulOrFallbackAsync(cancellationToken).ConfigureAwait(false);
+            _cachedBaseUrl = baseUrl;
+            _lastResolvedUtc = DateTime.UtcNow;
+            return baseUrl;
+        }
+        finally
+        {
+            _lock.Release();
+        }
+    }
+
+    private async Task<string> ResolveFromConsulOrFallbackAsync(CancellationToken cancellationToken)
+    {
+        var consulUrls = (_gatewayOptions.Consul?.Urls ?? new List<string>())
+            .Where(u => !string.IsNullOrWhiteSpace(u))
+            .ToList();
+        var kvKey = string.IsNullOrWhiteSpace(_options.ConsulKvKey)
+            ? "McpGateway/__department__/systems/__system__/Downstream/BaseUrl"
+            : _options.ConsulKvKey;
+        var fallbackUrl = _options.FallbackBaseUrls?.Find(u => !string.IsNullOrWhiteSpace(u))
+            ?? "http://api.corp.local/__department__/__system__";
+
+        foreach (var consulUrl in consulUrls)
+        {
             try
             {
-                using var client = _consulClientFactory(url);
-                var getResult = await client.KV.Get(kvKey, cancellationToken);
+                var trimmedBase = consulUrl.TrimEnd('/');
+                var requestUrl = $"{trimmedBase}/v1/kv/{kvKey}?raw";
 
-                if (getResult.Response?.Value != null && getResult.Response.Value.Length > 0)
+                using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                cts.CancelAfter(TimeSpan.FromSeconds(3));
+
+                var response = await _httpClient.GetAsync(requestUrl, cts.Token).ConfigureAwait(false);
+                if (response.IsSuccessStatusCode)
                 {
-                    var resolved = Encoding.UTF8.GetString(getResult.Response.Value).Trim();
-                    if (!string.IsNullOrEmpty(resolved))
+                    var content = await response.Content.ReadAsStringAsync(cts.Token).ConfigureAwait(false);
+                    var resolved = content?.Trim();
+                    if (!string.IsNullOrWhiteSpace(resolved))
                     {
-                        _logger.LogInformation("成功自 Consul KV ({Url}/{Key}) 解析 Downstream BaseUrl: {BaseUrl}", url, kvKey, resolved);
+                        _logger.LogInformation("成功自 Consul KV ({Url}/{Key}) 解析 Downstream BaseUrl: {BaseUrl}", trimmedBase, kvKey, resolved);
                         return resolved;
                     }
                 }
+                else
+                {
+                    _logger.LogWarning("Consul 節點 {Url} 回應狀態碼 {StatusCode}（key: {Key}）", trimmedBase, response.StatusCode, kvKey);
+                }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
-                _logger.LogWarning(ex, "向 Consul 節點 {Url} 讀取 Key '{Key}' 失敗，嘗試下一個節點...", url, kvKey);
+                _logger.LogWarning(ex, "向 Consul 節點 {Url} 讀取 Key '{Key}' 失敗，嘗試下一個節點...", consulUrl, kvKey);
             }
         }
 
-        _logger.LogWarning("Consul KV 均無法解析或不可達，回退至預設 BaseUrl: {FallbackUrl}", fallbackUrl);
+        _logger.LogWarning("Consul KV 均無法解析或不可達，回退至 FallbackBaseUrl: {FallbackUrl}", fallbackUrl);
         return fallbackUrl;
     }
 }

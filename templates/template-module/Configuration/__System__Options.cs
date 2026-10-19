@@ -4,53 +4,28 @@ namespace McpGateway.__Department__.__System__.Configuration;
 
 /// <summary>
 /// __System__ 子系統專屬組態選項。
+/// Consul 叢集節點位址統一讀取共用的 <c>McpGateway:Consul:Urls</c>（見 <see cref="McpGateway.Core.Configuration.McpGatewayOptions"/>），
+/// 與其他子系統共用同一份節點清單，避免各子系統各自維護重複清單。
+/// 本類別結構全部扁平化，不另包巢狀 Downstream 物件（比照 Qsys/Mes 子系統慣例）。
 /// </summary>
 public class __System__Options
 {
     public const string SectionName = "McpGateway:Systems:__system__";
 
     /// <summary>
-    /// 下游業務 API 相關設定。
+    /// Consul Key-Value 鍵值路徑（依據 ADR-014 規範），存放單一原始字串 BaseUrl。
+    /// 各環境 appsettings 應明確宣告不同的 Key（例如 .../BaseUrl/TestOa、.../BaseUrl/ProductionOa），
+    /// 避免 Dev/Test/Prod 三環境共用同一把 Consul Key。
     /// </summary>
-    public DownstreamOptions Downstream { get; set; } = new();
+    public string ConsulKvKey { get; set; } = "McpGateway/__department__/systems/__system__/Downstream/BaseUrl";
 
     /// <summary>
-    /// Consul 服務發現與 Key-Value 查詢設定。
+    /// Consul 全節點皆無法解析時的最終回退 BaseUrl 清單（取第一個非空值）。
     /// </summary>
-    public ConsulOptions Consul { get; set; } = new();
-}
-
-public class DownstreamOptions
-{
-    /// <summary>
-    /// 範例 1：靜態網址或本地 Fallback 網址（例如 http://api.corp.local/__department__/__system__）
-    /// </summary>
-    public string BaseUrl { get; set; } = "http://api.corp.local/__department__/__system__";
-
-    /// <summary>
-    /// 範例 2：微服務名稱（例如 "__department__-__system__-service"），由 Consul 服務發現解析實際健康節點位址
-    /// </summary>
-    public string? ServiceName { get; set; } = "__department__-__system__-service";
+    public List<string> FallbackBaseUrls { get; set; } = new();
 
     /// <summary>
     /// 呼叫下游之逾時秒數。
     /// </summary>
     public int TimeoutSeconds { get; set; } = 30;
-}
-
-public class ConsulOptions
-{
-    /// <summary>
-    /// Consul 叢集節點位址清單（支援多節點容錯）
-    /// </summary>
-    public List<string> Urls { get; set; } = new()
-    {
-        "http://tncimweb1.cminl.oa:8500/",
-        "http://tncimweb2.cminl.oa:8500/"
-    };
-
-    /// <summary>
-    /// 範例 1：Consul Key-Value 鍵值路徑（依據 ADR-014 規範）
-    /// </summary>
-    public string KvKey { get; set; } = "McpGateway/__department__/systems/__system__/Downstream/BaseUrl";
 }
