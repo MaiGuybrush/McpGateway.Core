@@ -53,6 +53,12 @@ internal static class Tier1Vocabulary
         new GlossaryEntry("stepName", "StepName", "製程站點/工序名稱", new[] { "operationName", "stageName" }),
         new GlossaryEntry("waferId", "WaferId", "晶圓片 ID (Wafer ID)", new[] { "waferNo", "dieId", "WAFER_ID" }),
 
+        // 搬送/倉儲位置 (Material Handling / AMHS Location)
+        new GlossaryEntry("zoneId", "ZoneId", "自動倉儲區域代碼 (AMHS Zone ID)", new[] { "zoneNo", "zoneCode", "zone_id" }),
+        new GlossaryEntry("shelfId", "ShelfId", "貨架層位代碼 (Shelf/Rack Position ID)", new[] { "shelfNo", "rackId", "shelf_id" }),
+        new GlossaryEntry("patiId", "PatiId", "放置位置代碼 (Placement/Slot Address ID)", new[] { "placeId", "slotAddressId", "pati_id" }),
+        new GlossaryEntry("position", "Position", "載具/面板目前位置代碼 (Current Item Position)", new[] { "posId", "locationCode" }),
+
         // 生產計量與良率指標
         new GlossaryEntry("quantityInProcess", "QuantityInProcess", "目前在製中數量（尚未完工）", new[] { "wipQty", "inProcessQty", "qtyInProcess" }),
         new GlossaryEntry("quantityCompleted", "QuantityCompleted", "該工單/項目已完工入庫數量", new[] { "completedQty", "doneQty", "finishQty" }),

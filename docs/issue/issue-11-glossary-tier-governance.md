@@ -133,7 +133,36 @@
 
 - 對 4 個 repo 分別跑一次 `dotnet build`（必要時含 `dotnet test`），確認皆無錯誤。
 - 以 `git grep -n "mcp-glossary"`／`CoreGlossary`／`GlossaryLoader` 掃過 4 個 repo 的工作目錄，確認僅剩歷史文件（如本文件、ADR-010）中的敘述性提及，原始碼與設定檔不再有殘留。
+
+### 6.6 後續待辦（2026-10-19 發現，暫緩）
+
+McpGateway.Core 升級至 `0.2.2-preview`（含本次詞彙合併）後，`McpGateway.Qsys.Issapi` 重新編譯浮現 **10 個新的 MCP0010 警告**：因為 `totalItems`、`generatedAt`（原 Tier 2 死碼內的詞彙，這次合併進 Tier1Vocabulary.cs 才首次被分析器實際掃到）成為標準詞彙，回溯標記出既有欄位命名不符規範：
+
+| 檔案 | 欄位 | 建議標準名稱 |
+|---|---|---|
+| `Issapi/Models/BplanJobFullDto.cs:41` | `StartTime` | `startHours` |
+| `Issapi/Models/GurobiUsageDto.cs:21` | `StartTime` | `startHours` |
+| `Issapi/Models/GurobiInfeasibleOutDto.cs:13` | `TotalCount` | `totalItems` |
+| `Issapi/Models/QueryMaterialDtos.cs:39` | `TotalCount` | `totalItems` |
+| `Issapi/Models/GurobiInfeasibleItemDto.cs:57` | `CreateTime` | `generatedAt` |
+
+**暫緩原因**：改欄位名稱可能影響下游呼叫端（需另外評估相容性/棄用期）；決定先不處理，待本次單層詞彙治理（Issue #11）主線完成後另案評估。
 - 在一個現有或臨時建立的工具上，刻意使用一個已知的歷史別名（例如 `prodId`）觸發 `MCP0010`，確認合併後的 `Tier1Vocabulary.cs` 仍正確提示，證明本次收斂未削弱既有編譯期檢查能力。
+
+### 6.7 新增搬送/倉儲位置領域詞彙（2026-10-19，前瞻性收錄）
+
+處理 `McpGateway.Mes` 的 §6.2 時發現 AryMes 子系統使用的 `zone_id`／`shelf_id`／`pati_id`／`position` 等欄位，描述的是「載具在自動倉儲 (AMHS) 中的實體位置階層」，屬於搬送領域的共通概念，而非 AryMes 專屬的傳輸封包欄位（如 `trx_id`／`type_id`／`rtn_code`，這些維持 Tier 2 本地描述，不收錄）。
+
+鑑於後續規劃中的 `CFMES`、`LcdMes` 子系統預期會管理同一套搬送領域概念（僅各自命名可能不同），經負責人確認後決定提前將下列標準名稱收錄進 `Tier1Vocabulary.cs`，避免日後各子系統各自發明命名、產生需要回溯清理的別名：
+
+| 下游欄位 (AryMes) | 標準名稱 (Tier 1) | 說明 |
+|---|---|---|
+| `zone_id` | `zoneId` / `ZoneId` | 自動倉儲區域代碼 (AMHS Zone ID) |
+| `shelf_id` | `shelfId` / `ShelfId` | 貨架層位代碼 (Shelf/Rack Position ID) |
+| `pati_id` | `patiId` / `PatiId` | 放置位置代碼 (Placement/Slot Address ID) |
+| `position` | `position` / `Position` | 載具/面板目前位置代碼 (Current Item Position) |
+
+`port_id`（裝卸埠）已有既有詞彙 `portId`，不重複新增。
 
 ## 7. 相關文件
 
