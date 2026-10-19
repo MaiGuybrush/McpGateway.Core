@@ -45,7 +45,7 @@ public class NullTokenCacheService : ITokenCacheService
             // Try IMemoryCache if available (preferred)
             if (_memoryCache != null)
             {
-                if (_memoryCache.TryGetValue(cacheKey, out ToolContext cachedContext))
+                if (_memoryCache.TryGetValue(cacheKey, out ToolContext? cachedContext) && cachedContext is not null)
                 {
                     return Task.FromResult<ToolContext?>(cachedContext);
                 }

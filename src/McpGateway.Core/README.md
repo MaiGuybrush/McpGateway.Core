@@ -41,7 +41,7 @@ The package provides:
 ## Package Details
 
 - **PackageId**: McpGateway.Core
-- **Version**: 0.2.1-preview
+- **Version**: 0.2.2-preview
 - **Target Framework**: net9.0
 - **Authors**: Platform Team
 
@@ -56,7 +56,7 @@ The package provides:
 From internal NuGet feed:
 
 ```bash
-dotnet add package McpGateway.Core --version 0.2.1-preview --source http://10.53.216.186:5000/v3/index.json
+dotnet add package McpGateway.Core --version 0.2.2-preview --source http://10.53.216.186:5000/v3/index.json
 ```
 
 ## Contributing

@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.2.2-preview
+
+**程式優化與錯誤修復 (Enhancements & Bug Fixes)**
+1. **詞彙治理單層化（[Issue #11](docs/issue/issue-11-glossary-tier-governance.md)）**：合併 Tier1/Tier2 雙層詞庫為單一 `Tier1Vocabulary.cs` 中央字典；移除孤兒的 Tier 2 機制（`CoreGlossary.cs`、`GlossaryLoader.cs`、`GlossaryTerm.cs`、範本 `mcp-glossary.json`/schema）；子系統專屬詞彙改以 DTO `[Description]` 表達。同步更新 ADR-010 與其主管簡報 HTML 反映單層現狀。
+2. 移除 `MockOcelotApi` `/api/orders` handler 多餘的 `async` 修飾詞，消除 CS1998 編譯警告。
+
 ## 0.2.1-preview
 
 **程式優化與錯誤修復 (Enhancements & Bug Fixes)**
