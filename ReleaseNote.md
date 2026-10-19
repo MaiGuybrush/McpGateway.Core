@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.2.3-preview
+
+**功能更新與錯誤修復 (Features & Bug Fixes)**
+1. **新增搬送/倉儲位置領域共通詞彙（[Issue #11](docs/issue/issue-11-glossary-tier-governance.md) §6.7）**：因應後續 CFMES、LcdMes 子系統預期沿用同一套 AMHS 搬送位置模型，提前將 `zoneId`/`shelfId`/`patiId`/`position` 收錄為 Tier 1 共通詞彙，避免各子系統日後各自命名造成別名清理成本。
+2. **修正子系統腳手架範本（`templates/template-module/`）殘留的舊版 Consul/Downstream 結構**：拉平巢狀 `DownstreamOptions`/`ConsulOptions`，刪除未使用的「範例2」服務探索式解析器，Consul KV 解析改為比照 ADR-013 `UacApiEndpointResolver` 直接以 `HttpClient` 存取，移除 `Consul` NuGet 套件參照。
+3. **修正 Consul Key 未設定時的不對稱回退邏輯**：先前邏輯為 Consul Key 未設定時仍會以寫死的猜測 Key 查詢 Consul，而非直接回退至本地 Fallback 設定；此行為與「Consul 節點清單未設定時直接回退」不一致，且有查到語意不符資料的風險。修正後範本統一為 Key 未設定時直接略過 Consul 查詢並回退。
+
 ## 0.2.2-preview
 
 **程式優化與錯誤修復 (Enhancements & Bug Fixes)**

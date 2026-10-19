@@ -7,7 +7,7 @@
     <LangVersion>latest</LangVersion>
 
     <PackageId>McpGateway.Core</PackageId>
-    <Version>0.2.2-preview</Version>
+    <Version>0.2.3-preview</Version>
     <Authors>Platform Team</Authors>
     <Company>Internal</Company>
     <Description>MCP Gateway shared library providing authentication, audit, validation, and transport functionality for department gateways (McpGateway.Report, McpGateway.Spc, McpGateway.Qc)</Description>
