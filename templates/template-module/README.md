@@ -1,4 +1,4 @@
-# McpGateway.__Department__.__System__
+﻿# McpGateway.__Department__.__System__
 
 __Department__ 部門之 __System__ 子系統 MCP 模組。
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -73,13 +73,13 @@ public sealed class ConsulKvDownstreamResolver : IDownstreamUrlResolver
         var fallbackUrl = _options.FallbackBaseUrls?.Find(u => !string.IsNullOrWhiteSpace(u))
             ?? "http://api.corp.local/__department__/__system__";
 
-        if (string.IsNullOrWhiteSpace(_options.ConsulKvKey))
+        if (string.IsNullOrWhiteSpace(_options.ConsulKey))
         {
-            _logger.LogWarning("未設定 ConsulKvKey，略過 Consul 查詢並直接回退至 FallbackBaseUrl: {FallbackUrl}", fallbackUrl);
+            _logger.LogWarning("未設定 ConsulKey，略過 Consul 查詢並直接回退至 FallbackBaseUrl: {FallbackUrl}", fallbackUrl);
             return fallbackUrl;
         }
 
-        var kvKey = _options.ConsulKvKey;
+        var kvKey = _options.ConsulKey;
         var consulUrls = (_gatewayOptions.Consul?.Urls ?? new List<string>())
             .Where(u => !string.IsNullOrWhiteSpace(u))
             .ToList();

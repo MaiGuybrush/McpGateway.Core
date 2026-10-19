@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using McpGateway.Core.Subsystems;
 using McpGateway.__Department__.__System__.Configuration;
 using McpGateway.__Department__.__System__.Services;

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     MCP Gateway 增量式子系統模組產生腳本 (Add Subsystem Module)
 
@@ -174,7 +174,7 @@ if (-not (Test-Path $slnPath)) {
 }
 
 # 5. 解析 Core 版本
-$coreVersion = "0.1.0-preview"
+$coreVersion = "0.2.3-preview"
 try {
     $hostXml = [xml](Get-Content $hostCsprojPath)
     $pkgNode = $hostXml.SelectSingleNode("//PackageReference[@Include='McpGateway.Core']")
@@ -446,13 +446,15 @@ if (Test-Path $appSettingsPath) {
     try {
         $appJson = Get-Content $appSettingsPath -Raw
         if ($appJson -notmatch """$systemLower""\s*:") {
+            # 扁平結構，對齊 template-module/Configuration/__System__Options.cs 的實際屬性
+            # （ConsulKey / FallbackBaseUrls / TimeoutSeconds，不包 Downstream 巢狀物件，也沒有 BaseUrl 屬性）
             if ($appJson -match '("Systems"\s*:\s*\{)\s*(\})') {
-                $subsystemSnippet = "`r`n      `"$systemLower`": {`r`n        `"Downstream`": {`r`n          `"BaseUrl`": `"http://api.corp.local/$deptLower/$systemLower`",`r`n          `"TimeoutSeconds`": 30`r`n        }`r`n      }`r`n    "
+                $subsystemSnippet = "`r`n      `"$systemLower`": {`r`n        `"ConsulKey`": `"`",`r`n        `"FallbackBaseUrls`": [ `"http://api.corp.local/$deptLower/$systemLower`" ],`r`n        `"TimeoutSeconds`": 30`r`n      }`r`n    "
                 $appJson = $appJson -replace '("Systems"\s*:\s*\{)\s*(\})', "`$1$subsystemSnippet`$2"
                 [System.IO.File]::WriteAllText($appSettingsPath, $appJson, [System.Text.Encoding]::UTF8)
                 Write-Host "      已向 appsettings.json 加入 Systems:$systemLower 預設組態" -ForegroundColor Gray
             } elseif ($appJson -match '("Systems"\s*:\s*\{)') {
-                $subsystemSnippet = "`r`n      `"$systemLower`": {`r`n        `"Downstream`": {`r`n          `"BaseUrl`": `"http://api.corp.local/$deptLower/$systemLower`",`r`n          `"TimeoutSeconds`": 30`r`n        }`r`n      },"
+                $subsystemSnippet = "`r`n      `"$systemLower`": {`r`n        `"ConsulKey`": `"`",`r`n        `"FallbackBaseUrls`": [ `"http://api.corp.local/$deptLower/$systemLower`" ],`r`n        `"TimeoutSeconds`": 30`r`n      },"
                 $appJson = $appJson -replace '("Systems"\s*:\s*\{)', "`$1$subsystemSnippet"
                 [System.IO.File]::WriteAllText($appSettingsPath, $appJson, [System.Text.Encoding]::UTF8)
                 Write-Host "      已向 appsettings.json 加入 Systems:$systemLower 預設組態" -ForegroundColor Gray
