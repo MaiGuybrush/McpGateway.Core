@@ -186,7 +186,7 @@
                 </div>
                 <div class="text-xl font-bold text-white">消滅孤島，賦能協同</div>
                 <p class="text-slate-300 text-xs leading-normal">
-                  建立雙層詞庫與強型別 DTO，讓 LLM 進行 Tool Chaining 時零猜測、零換算。
+                  建立單層核心詞庫與強型別 DTO，讓 LLM 進行 Tool Chaining 時零猜測、零換算。
                 </p>
               </div>
 
@@ -341,7 +341,7 @@
                 ADR-010 四大治理支柱 (4 Pillars)
               </h2>
             </div>
-            <div class="text-xs text-slate-400">完整涵蓋：型別契約、雙層詞庫、編譯器治理、啟動防禦</div>
+            <div class="text-xs text-slate-400">完整涵蓋：型別契約、核心詞庫、編譯器治理、啟動防禦</div>
           </div>
 
           <div class="grid grid-cols-12 gap-4">
@@ -367,14 +367,14 @@
                 <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
                   2
                 </div>
-                <h3 class="font-bold text-slate-100 text-sm">雙層詞庫治理體系</h3>
+                <h3 class="font-bold text-slate-100 text-sm">單層核心詞庫治理</h3>
                 <p class="text-[12px] text-slate-300 leading-relaxed">
-                  <strong>Tier 1 全域字典</strong>：集中維護製造/半導體共通概念（<code class="code-chip">productId</code>, <code class="code-chip">lotId</code>, <code class="code-chip">eqptId</code> 等）。<br>
-                  <strong>Tier 2 本地字典</strong>：各專案由 <code class="code-chip">mcp-glossary.json</code> 自主擴充業務特有詞彙。
+                  <strong>中央核心字典</strong>：集中維護製造/半導體共通概念（<code class="code-chip">productId</code>, <code class="code-chip">lotId</code>, <code class="code-chip">eqptId</code> 等）及歷史別名。<br>
+                  子系統專屬詞彙（如 <code class="code-chip">driftScore</code>）直接寫在 DTO <code class="code-chip">[Description]</code>，不再另建本地字典（<a href="https://tncimweb.cminl.oa/git-server/CIM-1-3-1/McpGateway.Core/issues/11" class="text-indigo-300 underline">Issue #11</a>）。
                 </p>
               </div>
               <div class="pt-2 border-t border-slate-800 text-[11px] text-indigo-300">
-                <i class="fa-solid fa-check mr-1"></i> 中央規範與部門自治兼得
+                <i class="fa-solid fa-check mr-1"></i> 單一權威來源，避免雙層失同步
               </div>
             </div>
 

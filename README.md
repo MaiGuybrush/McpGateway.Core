@@ -72,7 +72,7 @@ McpGateway.Core/
 │   └── MockOcelotApi/                   # 整合測試專用之 Mock 下游 API 伺服器
 ├── templates/                           # 部門與子系統腳手架範本樹
 │   ├── template-host/                   # 薄宿主 Web App 專案範本 (含 .vscode 除錯設定與 HelloTool)
-│   ├── template-module/                 # 子系統模組類別庫範本 (含 Consul KV/服務發現雙解析器、mcp-glossary.json)
+│   ├── template-module/                 # 子系統模組類別庫範本 (含 Consul KV/服務發現雙解析器)
 │   ├── template-module-tests/           # 子系統單元測試專案範本
 │   ├── scaffold.ps1                     # 部門 Modular Monorepo 骨架一鍵產生腳本
 │   └── add-module.ps1                   # 增量子系統模組與單元測試自動產生腳本
@@ -163,7 +163,6 @@ pwsh .\templates\add-module.ps1 `
 4. **Consul 下游位址解析雙模式**：範本內建 `IDownstreamUrlResolver` 介面，提供兩種企業級落地範例：
    - **範例 1 (`ConsulKvDownstreamResolver`)**：透過 Consul Key-Value 集中式設定動態讀取 Downstream Base URL。
    - **範例 2 (`ConsulServiceDiscoveryDownstreamResolver`)**：透過 Consul Service Discovery 查詢健康服務實例以解析位址。
-5. **標準化詞庫**：包含符合 ADR-010 規範之 `mcp-glossary.json` 最簡詞庫陣列定義。
 
 ---
 

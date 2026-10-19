@@ -69,13 +69,10 @@ McpGateway.Core/
         │   │   └── HelloTool.cs
         │   └── __ToolClass__/
         │       └── __ToolClass__Tool.cs
-        ├── docs/
-        │   └── mcp-glossary.schema.json
         ├── .gitignore
         ├── appsettings.json
         ├── appsettings.Development.json
         ├── __department__-endpoints.yaml
-        ├── mcp-glossary.json
         ├── MCP_ENDPOINTS.md
         ├── McpGateway.__Department__.csproj
         ├── nuget.config
@@ -104,8 +101,6 @@ McpGateway.Core/
 | `Models/ResolvedShopConfig.cs` | 產生 (固定) | 解析後廠別端點 Model |
 | `Exceptions/ShopNotFoundException.cs` | 產生 (固定) | 廠別未找到異常型別 |
 | `Configuration/__OptionsClass__.cs` | 產生 (參數化) | 下游業務設定段 Options |
-| `mcp-glossary.json` | 產生 (固定) | Tier 2 詞彙庫空骨架 (`"terms": []`) |
-| `docs/mcp-glossary.schema.json` | 產生 (固定) | 詞彙庫 JSON Schema |
 | `README.md` / `MCP_ENDPOINTS.md` | 產生 (參數化) | 專案說明與端口/路由文件 |
 | `.vscode/launch.json` & `tasks.json` | 產生 (參數化) | VS Code 除錯與建置設定 (綁定 csproj) |
 

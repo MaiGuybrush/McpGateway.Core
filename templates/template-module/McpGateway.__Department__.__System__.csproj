@@ -15,8 +15,4 @@
     <PackageReference Include="Consul" Version="1.6.10.9" />
   </ItemGroup>
 
-  <ItemGroup>
-    <AdditionalFiles Include="mcp-glossary.json" Condition="Exists('mcp-glossary.json')" />
-  </ItemGroup>
-
 </Project>

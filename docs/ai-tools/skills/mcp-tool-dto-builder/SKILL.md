@@ -27,7 +27,7 @@ flowchart TD
 Dynamically resolve the authoritative `Tier1Vocabulary.cs` using the 2-tier probe strategy:
 
 1. **Local Probe (Tier 1A)**:
-   - Scan workspace for `**/Tier1Vocabulary.cs` or `**/CoreGlossary.cs`.
+   - Scan workspace for `**/Tier1Vocabulary.cs`.
    - Inspect `.csproj` / `.sln` / `Directory.Build.props` project references (`<ProjectReference Include="...McpGateway.Analyzers..." />`) and resolve target paths.
    - If found, read directly and extract all `GlossaryEntry` definitions into context.
 2. **Remote Probe (Tier 1B)**:
@@ -52,7 +52,7 @@ Capture the tool's business context and raw field specifications:
 1. **Tool Purpose**: What business capability does this tool provide to AI agents?
 2. **Input Parameters**: Required and optional filter/query parameters with initial data types.
 3. **Output Structure**: Existing JSON response, SQL query result, legacy DTO, or list of fields.
-4. **Target Department / Gateway**: (e.g., Report, MES, EAP, SPC, QC) to determine local Tier 2 `mcp-glossary.json` scope.
+4. **Target Department / Gateway**: (e.g., Report, MES, EAP, SPC, QC) to determine naming conventions and existing DTOs in scope.
 
 > **Completion Criterion**: Tool business purpose is clearly stated, and the raw list of all input and output fields with initial types/meanings is captured.
 
@@ -60,7 +60,7 @@ Capture the tool's business context and raw field specifications:
 
 ### Step 2: Canonicalize against Vocabulary
 
-Analyze 100% of captured fields against the resolved Tier 1 vocabulary and project-level `mcp-glossary.json`:
+Analyze 100% of captured fields against the resolved Tier 1 vocabulary:
 
 Categorize every field into one of three buckets:
 1. **Tier 1 Standard Hit**: Exact match with standard term (e.g., `productId`, `eqptId`, `workCenter`, `quantityInProcess`, `status`).
@@ -98,7 +98,6 @@ Generate complete, production-ready C# code:
 2. **Output DTO**: `public sealed record <ToolName>Response(...)` (or structured root DTO) with `[property: Description("...")]` on every property.
 3. **Nested DTOs**: Create dedicated records for collection items (e.g., `<Entity>ItemDto`) and nested objects, ensuring every nested property has its own `[property: Description]`.
 4. **Tool Class Method Skeleton**: `[McpServerToolType]` class containing `[McpServerTool(UseStructuredContent = true)]` method signature.
-5. **Tier 2 Proposal (Optional)**: If new domain-specific terms are identified that should be shared across the department, output a sample snippet for `mcp-glossary.json`.
 
 > Strictly adhere to [CONTRACT_RULES.md](CONTRACT_RULES.md) for immutable positional record syntax, Description attributes, and Roslyn MCP0010-MCP0012 compliance.
 

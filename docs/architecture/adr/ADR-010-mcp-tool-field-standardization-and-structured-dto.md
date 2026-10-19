@@ -3,6 +3,8 @@
 ## 狀態
 **✅ 已採用 (Accepted)**（2026-08-17）
 
+> **修訂紀錄（2026-10-19）**：原第 2 支柱「雙層詞庫治理體系」已依 [Issue #11](http://tncimweb.cminl.oa/git-server/CIM-1-3-1/McpGateway.Core/issues/11) 收斂為單層架構。實際盤點發現 Tier 2（`mcp-glossary.json`）機制從未被任何分析器讀取，屬於未落地的死碼；下方第 2 支柱內容已改寫為反映此現狀，原始設計構想保留於 Issue #11 的分析文件中。
+
 ---
 
 ## 背景 (Context)
@@ -35,12 +37,11 @@
 * 淘汰純文字 Markdown 拼接字串回傳，所有 Tool 統一回傳不可變強型別 Record DTO。
 * 標註 `[McpServerTool(UseStructuredContent = true)]`，使 ModelContextProtocol SDK 自動掃描 DTO 屬性上的 `[property: Description("...")]` 並在 `tools/list` 暴露標準 JSON Schema（`outputSchema`）。
 
-### 2. 建立雙層詞庫治理體系 (Two-Tier Domain Vocabulary)
-* **Tier 1 (全域核心字典，Core Domain Vocabulary)**：
-  * 由中央 `McpGateway.Core` 集中維護製造業/半導體/面板共通概念（如 `productId`, `eqptId`, `subEqptId`, `workCenter`, `productLine`, `stepId`, `lotId`, `workOrderId`, `glassId`, `panelId`, `waferId`, `quantityInProcess`, `yieldRate`, `status` 等）及其歷史同義別名（Aliases）。
-* **Tier 2 (專案本地字典，Local Project Vocabulary)**：
-  * 允許各專案於根目錄建立 `mcp-glossary.json`，自主擴充業務特有詞彙，不需等待中央團隊發行新版本。
+### 2. 建立單層核心詞庫治理體系 (Core Domain Vocabulary)
+* 由中央 `McpGateway.Core`（實作於 `McpGateway.Analyzers/Tier1Vocabulary.cs`）集中維護製造業/半導體/面板共通概念（如 `productId`, `eqptId`, `subEqptId`, `workCenter`, `productLine`, `stepId`, `lotId`, `workOrderId`, `glassId`, `panelId`, `waferId`, `quantityInProcess`, `yieldRate`, `status` 等）及其歷史同義別名（Aliases），為唯一權威來源。
+* 子系統專屬、不具跨系統共通性的業務詞彙（如 `driftScore`、`gpuHours`），不再透過獨立詞庫宣告，而是直接寫在對應 DTO 屬性的 `[property: Description("...")]` 字面文字中，僅受 `MCP0011`（缺 Description 必填）約束。
 * **詞庫演進原則**：新增詞彙為純擴充（Non-breaking）；舊詞淘汰採 Deprecation 提示，不阻斷既有專案編譯。
+* > 原規劃中曾設計「Tier 2 專案本地字典」（各專案自建 `mcp-glossary.json` 自主擴充、不需等待中央發版），但該機制從未被任何分析器實際讀取，屬於未落地的設計；詳見 [Issue #11](http://tncimweb.cminl.oa/git-server/CIM-1-3-1/McpGateway.Core/issues/11) 之分析與收斂決議。
 
 ### 3. 開發期 Roslyn 分析器與一鍵修復 (`McpGateway.Analyzers`)
 * 建立獨立的 Roslyn DiagnosticAnalyzer 套件，於 Visual Studio / VS Code 即時提示：
