@@ -117,7 +117,7 @@ app.MapGet("/api/report/wip", ([FromQuery] string? workCenter, [FromQuery] strin
 });
 
 // POST /api/orders
-app.MapPost("/api/orders", async ([FromBody] OrderRequest request) =>
+app.MapPost("/api/orders", ([FromBody] OrderRequest request) =>
 {
     if (request.Items == null || request.Items.Count == 0)
     {
