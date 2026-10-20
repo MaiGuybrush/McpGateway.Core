@@ -1,4 +1,4 @@
-using McpGateway.Core.Hosting;
+﻿using McpGateway.Core.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using McpGateway.__Department__.Host.Tools;

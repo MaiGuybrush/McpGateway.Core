@@ -1,4 +1,4 @@
-# McpGateway.__Department__
+﻿# McpGateway.__Department__
 
 __Department__ 部門 MCP Gateway Modular Monorepo 方案。
 

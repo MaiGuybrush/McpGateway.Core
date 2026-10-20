@@ -176,14 +176,14 @@ if (-not (Test-Path $slnPath)) {
 # 5. 解析 Core 版本
 $coreVersion = "0.2.3-preview"
 try {
-    $hostXml = [xml](Get-Content $hostCsprojPath)
+    $hostXml = [xml](Get-Content $hostCsprojPath -Raw -Encoding UTF8)
     $pkgNode = $hostXml.SelectSingleNode("//PackageReference[@Include='McpGateway.Core']")
     if ($pkgNode -and -not [string]::IsNullOrWhiteSpace($pkgNode.GetAttribute("Version"))) {
         $coreVersion = $pkgNode.GetAttribute("Version").Trim()
     } else {
         $coreCsprojPath = Join-Path $PSScriptRoot "..\src\McpGateway.Core\McpGateway.Core.csproj"
         if (Test-Path $coreCsprojPath) {
-            $xml = [xml](Get-Content $coreCsprojPath)
+            $xml = [xml](Get-Content $coreCsprojPath -Raw -Encoding UTF8)
             $verNode = $xml.SelectSingleNode("//PropertyGroup/Version")
             if ($verNode -and -not [string]::IsNullOrWhiteSpace($verNode.InnerText)) {
                 $coreVersion = $verNode.InnerText.Trim()
@@ -257,7 +257,7 @@ if ($DryRun) {
     Write-Host "--------------------------------------------------------------------------------"
     Write-Host "預計產生之子系統檔案清單：" -ForegroundColor Yellow
 
-    $allModuleItems = Get-ChildItem -Recurse $templateModuleRoot
+    $allModuleItems = Get-ChildItem -Recurse $templateModuleRoot | Where-Object { $_.FullName -notmatch '[\\/](obj|bin)([\\/]|$)' }
     foreach ($item in $allModuleItems) {
         $relPath = $item.FullName.Substring($templateModuleRoot.Length).TrimStart('\', '/')
         $destRelPath = $relPath
@@ -273,7 +273,7 @@ if ($DryRun) {
     }
 
     if (Test-Path $templateModuleTestsRoot) {
-        $allTestItems = Get-ChildItem -Recurse $templateModuleTestsRoot
+        $allTestItems = Get-ChildItem -Recurse $templateModuleTestsRoot | Where-Object { $_.FullName -notmatch '[\\/](obj|bin)([\\/]|$)' }
         foreach ($item in $allTestItems) {
             $relPath = $item.FullName.Substring($templateModuleTestsRoot.Length).TrimStart('\', '/')
             $destRelPath = $relPath
@@ -308,7 +308,7 @@ if (-not (Test-Path $subsystemDirPath)) {
     New-Item -ItemType Directory -Path $subsystemDirPath -Force | Out-Null
 }
 
-$allModuleItems = Get-ChildItem -Recurse $templateModuleRoot
+$allModuleItems = Get-ChildItem -Recurse $templateModuleRoot | Where-Object { $_.FullName -notmatch '[\\/](obj|bin)([\\/]|$)' }
 foreach ($item in $allModuleItems) {
     $relPath = $item.FullName.Substring($templateModuleRoot.Length).TrimStart('\', '/')
     $destRelPath = $relPath
@@ -327,7 +327,7 @@ foreach ($item in $allModuleItems) {
             New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
         }
 
-        $content = Get-Content $item.FullName -Raw
+        $content = Get-Content $item.FullName -Raw -Encoding UTF8
         foreach ($entry in $replacementList) {
             $content = $content.Replace($entry.Key, $entry.Value)
         }
@@ -342,7 +342,7 @@ if (Test-Path $templateModuleTestsRoot) {
         New-Item -ItemType Directory -Path $testsDirPath -Force | Out-Null
     }
 
-    $allTestItems = Get-ChildItem -Recurse $templateModuleTestsRoot
+    $allTestItems = Get-ChildItem -Recurse $templateModuleTestsRoot | Where-Object { $_.FullName -notmatch '[\\/](obj|bin)([\\/]|$)' }
     foreach ($item in $allTestItems) {
         $relPath = $item.FullName.Substring($templateModuleTestsRoot.Length).TrimStart('\', '/')
         $destRelPath = $relPath
@@ -361,7 +361,7 @@ if (Test-Path $templateModuleTestsRoot) {
                 New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
             }
 
-            $content = Get-Content $item.FullName -Raw
+            $content = Get-Content $item.FullName -Raw -Encoding UTF8
             foreach ($entry in $replacementList) {
                 $content = $content.Replace($entry.Key, $entry.Value)
             }
@@ -407,7 +407,7 @@ catch {
 # 10.3 進入點注入 (Host/Program.cs)
 Write-Host "[3/4] 在 Host Program.cs 自動注入子系統註冊碼..." -ForegroundColor Yellow
 try {
-    $programContent = Get-Content $hostProgramPath -Raw
+    $programContent = Get-Content $hostProgramPath -Raw -Encoding UTF8
 
     # 注入 using
     $usingDirective = "using McpGateway.$pascalDept.$pascalSystem;"
@@ -444,7 +444,7 @@ Write-Host "[4/4] 檢查並更新 Host appsettings.json 組態區段..." -Foregr
 $appSettingsPath = Join-Path $hostDirPath "appsettings.json"
 if (Test-Path $appSettingsPath) {
     try {
-        $appJson = Get-Content $appSettingsPath -Raw
+        $appJson = Get-Content $appSettingsPath -Raw -Encoding UTF8
         if ($appJson -notmatch """$systemLower""\s*:") {
             # 扁平結構，對齊 template-module/Configuration/__System__Options.cs 的實際屬性
             # （ConsulKey / FallbackBaseUrls / TimeoutSeconds，不包 Downstream 巢狀物件，也沒有 BaseUrl 屬性）

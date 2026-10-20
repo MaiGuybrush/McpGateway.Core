@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     MCP Gateway 部門 Modular Monorepo 專案腳手架 (Scaffold) 自動化產生腳本
 
@@ -139,7 +139,7 @@ $coreCsprojPath = Join-Path $PSScriptRoot "..\src\McpGateway.Core\McpGateway.Cor
 $coreVersion = "0.1.0-preview"
 if (Test-Path $coreCsprojPath) {
     try {
-        $xml = [xml](Get-Content $coreCsprojPath)
+        $xml = [xml](Get-Content $coreCsprojPath -Raw -Encoding UTF8)
         $verNode = $xml.SelectSingleNode("//PropertyGroup/Version")
         if ($verNode -and -not [string]::IsNullOrWhiteSpace($verNode.InnerText)) {
             $coreVersion = $verNode.InnerText.Trim()
@@ -161,7 +161,7 @@ $authSnippetFile = switch ($AuthProvider.ToUpperInvariant()) {
 $authSnippetPath = Join-Path $PSScriptRoot "snippets\auth\$authSnippetFile"
 $authSnippetContent = ""
 if (Test-Path $authSnippetPath) {
-    $authSnippetContent = Get-Content $authSnippetPath -Raw
+    $authSnippetContent = Get-Content $authSnippetPath -Raw -Encoding UTF8
     $authSnippetContent = $authSnippetContent.Replace('__department__', $deptLower)
 }
 
@@ -235,6 +235,9 @@ if ($DryRun) {
         if ($item.FullName.StartsWith((Join-Path $templateHostRoot ".vscode"))) {
             continue
         }
+        if ($item.FullName -match '[\\/](obj|bin)([\\/]|$)') {
+            continue
+        }
         $relPath = $item.FullName.Substring($templateHostRoot.Length).TrimStart('\', '/')
         $destRelPath = $relPath
         foreach ($r in $pathReplacements) {
@@ -269,6 +272,9 @@ foreach ($item in $allHostTemplateItems) {
     if ($item.FullName.StartsWith((Join-Path $templateHostRoot ".vscode"))) {
         continue
     }
+    if ($item.FullName -match '[\\/](obj|bin)([\\/]|$)') {
+        continue
+    }
 
     $relPath = $item.FullName.Substring($templateHostRoot.Length).TrimStart('\', '/')
     $destRelPath = $relPath
@@ -287,7 +293,7 @@ foreach ($item in $allHostTemplateItems) {
             New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
         }
 
-        $content = Get-Content $item.FullName -Raw
+        $content = Get-Content $item.FullName -Raw -Encoding UTF8
         foreach ($entry in $replacementList) {
             $content = $content.Replace($entry.Key, $entry.Value)
         }
@@ -297,11 +303,6 @@ foreach ($item in $allHostTemplateItems) {
                 $content,
                 '"Urls":\s*\[[^\]]*\]',
                 '"Urls": []'
-            )
-            $content = [System.Text.RegularExpressions.Regex]::Replace(
-                $content,
-                '"ConsulUrls":\s*\[[^\]]*\]',
-                '"ConsulUrls": []'
             )
         }
 
@@ -324,7 +325,7 @@ if (Test-Path $hostNuget) {
 
 $rootReadmeTemplate = Join-Path $templateHostRoot "README.root.md"
 if (Test-Path $rootReadmeTemplate) {
-    $rootReadmeContent = Get-Content $rootReadmeTemplate -Raw
+    $rootReadmeContent = Get-Content $rootReadmeTemplate -Raw -Encoding UTF8
     foreach ($entry in $replacementList) {
         $rootReadmeContent = $rootReadmeContent.Replace($entry.Key, $entry.Value)
     }
@@ -340,7 +341,7 @@ if (Test-Path $templateVsCodeDir) {
         New-Item -ItemType Directory -Path $targetVsCodeDir -Force | Out-Null
     }
     Get-ChildItem -Path $templateVsCodeDir -File | ForEach-Object {
-        $vscodeContent = Get-Content $_.FullName -Raw
+        $vscodeContent = Get-Content $_.FullName -Raw -Encoding UTF8
         foreach ($entry in $replacementList) {
             $vscodeContent = $vscodeContent.Replace($entry.Key, $entry.Value)
         }

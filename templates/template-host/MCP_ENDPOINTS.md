@@ -1,4 +1,4 @@
-# __Department__ MCP 端點分流與對應說明
+﻿# __Department__ MCP 端點分流與對應說明
 
 ## 服務端點
 

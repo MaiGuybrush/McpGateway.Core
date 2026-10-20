@@ -1,4 +1,4 @@
-# McpGateway.__Department__.Host
+﻿# McpGateway.__Department__.Host
 
 部門 MCP Gateway 薄宿主服務 (Thin Host)。
 
