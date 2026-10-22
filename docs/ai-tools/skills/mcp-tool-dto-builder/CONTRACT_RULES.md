@@ -29,9 +29,30 @@
 
 | 診斷代碼 | 嚴重性 | 觸發條件 | 修復方式 |
 | :--- | :--- | :--- | :--- |
-| **`MCP0010`** | Warning | 使用了已知歷史別名（如 `ProductCode`, `prodId`, `wipQty`） | 自動更名為標準名稱（如 `ProductId`, `QuantityInProcess`） |
+| **`MCP0010`** | Warning | 使用了已知歷史別名（如 `ProductCode`, `prodId`, `wipQty`） | 先核對警告中附帶的詞條語意邊界與欄位實際值；語意相符才更名為標準詞（如 `ProductId`, `QuantityInProcess`），語意不符（如時刻欄位被建議改為時數詞）應忽略警告 |
 | **`MCP0011`** | Warning | DTO 公開屬性遺漏 `[Description]` 特性 | 補齊繁體中文業務描述與格式範例 |
 | **`MCP0012`** | Info | 屬性或參數包含底線（如 `PROD_ID`, `work_order`） | 調整為標準 CamelCase / PascalCase |
+
+> `MCP0010` 警告訊息自 Core `0.2.3-preview` 後（未進板變更，Issue #14）會完整附帶詞條 `Description`，並以繁體中文呈現；`MCP0011`/`MCP0012` 訊息亦已中文化。診斷 ID 不變，`#pragma warning disable` 與 `.editorconfig` 設定不受影響。
+
+---
+
+## 2.1 詞條描述撰寫規範（Tier 1 詞庫貢獻時必讀）
+
+`Tier1Vocabulary.cs` 詞條的 `Description` 是 AI Skill 產生 DTO `[Description]` 與開發者判斷改名的**唯一語意依據**，撰寫規範為三段式（定義＋邊界＋範例）：
+
+```
+<定義>。<邊界：與哪個近義詞不同、如何判斷>。<範例>
+```
+
+- **必須寫邊界**的易混淆群（新增/修改這些詞條時，邊界段不可省略）：
+  時間（時數/時刻/日期/時間戳記互斥）、計數主體（`lotCnt`/`sheetCnt`/`panelCnt`/`totalItems`）、數量與良率（絕對數量 vs 比率）、設備階層（`eqptId`→`subEqptId`→`chamberId`/`portId`）、載具與生產對象（`carrierId`/`lotId`/`glassId`/`panelId`/`waferId`）、AMHS 位置階層（`zoneId`→`shelfId`→`patiId`）、站點與產線（`processId` vs `stepId`）。
+- **無近義詞**的詞條（如 `productId`）維持一句話定義＋範例即可，不硬湊三段。
+- 邊界句應採用「若欄位為 X 語意請用 Y」的可操作形式，讓讀者能據以自行判斷，而非只描述本詞。
+- 詞條必須歸入檔內對應主題段落（分段順序即 AI 比對順序，近義詞須同段）。
+- 名稱唯一性（別名不得撞標準名、不得兩條共享）由 `Tier1VocabularyConsistencyTests` 於 CI 強制，提 PR 前請先本地跑 `dotnet test`。
+
+完整背景與決議見 [Issue #14](../../issue/issue-14-vocabulary-semantic-boundary.md)。
 
 ---
 

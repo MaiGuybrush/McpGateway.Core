@@ -7,6 +7,16 @@
 2. **修正子系統腳手架範本（`templates/template-module/`）殘留的舊版 Consul/Downstream 結構**：拉平巢狀 `DownstreamOptions`/`ConsulOptions`，刪除未使用的「範例2」服務探索式解析器，Consul KV 解析改為比照 ADR-013 `UacApiEndpointResolver` 直接以 `HttpClient` 存取，移除 `Consul` NuGet 套件參照。
 3. **修正 Consul Key 未設定時的不對稱回退邏輯**：先前邏輯為 Consul Key 未設定時仍會以寫死的猜測 Key 查詢 Consul，而非直接回退至本地 Fallback 設定；此行為與「Consul 節點清單未設定時直接回退」不一致，且有查到語意不符資料的風險。修正後範本統一為 Key 未設定時直接略過 Consul 查詢並回退。
 
+<!-- 未進板變更（下次 chore(release) 進板時移入新版本章節，見 docs/issue/issue-14-vocabulary-semantic-boundary.md）：
+     1.【詞彙】修正 startHours 語意：移除 startTime 別名；startTime（時刻）/startDate（日期）/endDate（日期）
+       收錄為獨立標準詞彙（§1.1、§7.2 #3）。下游同名 StartTime 欄位不再被 MCP0010 標記。
+     2.【詞彙】6 個易混淆群（時間/計數/數量與良率/設備階層/載具階層/位置階層/站點）共 35 條詞條
+       描述補上語意邊界（定義＋辨析＋範例）；詞庫重排為 8 個主題段（§7.2）。
+     3.【分析器·破壞性】MCP0010/0011/0012 診斷與 Code Fix 標題全面中文化，MCP0010 完整附帶詞條描述
+       （§7.3）。診斷 ID 不變，#pragma/.editorconfig 不受影響；下游若有依英文訊息文字做的 CI 比對需調整。
+     4.【分析器】新增詞庫名稱唯一性 CI 檢查（Tier1VocabularyConsistencyTests），撞名衝突直接測試失敗（§7.1）。
+-->
+
 ## 0.2.2-preview
 
 **程式優化與錯誤修復 (Enhancements & Bug Fixes)**

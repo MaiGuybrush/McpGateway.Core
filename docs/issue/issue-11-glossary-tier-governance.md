@@ -147,6 +147,8 @@ McpGateway.Core 升級至 `0.2.2-preview`（含本次詞彙合併）後，`McpGa
 | `Issapi/Models/GurobiInfeasibleItemDto.cs:57` | `CreateTime` | `generatedAt` |
 
 **暫緩原因**：改欄位名稱可能影響下游呼叫端（需另外評估相容性/棄用期）；決定先不處理，待本次單層詞彙治理（Issue #11）主線完成後另案評估。
+
+> **更新（2026-10-22）**：上列兩筆 `StartTime` → `startHours` 的建議**已失效**（`startHours` 為持續時數，與時刻語意的 `startTime` 為不同概念）。原因分析與後續處理統一記錄於 [Issue #14](issue-14-vocabulary-semantic-boundary.md)，本節不再重複說明；Qsys `Issapi` 的兩個 `StartTime` 欄位需逐欄位確認實際語意後，才決定是否改名。
 - 在一個現有或臨時建立的工具上，刻意使用一個已知的歷史別名（例如 `prodId`）觸發 `MCP0010`，確認合併後的 `Tier1Vocabulary.cs` 仍正確提示，證明本次收斂未削弱既有編譯期檢查能力。
 
 ### 6.7 新增搬送/倉儲位置領域詞彙（2026-10-19，前瞻性收錄）

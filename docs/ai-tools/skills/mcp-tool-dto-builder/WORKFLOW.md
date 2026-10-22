@@ -84,11 +84,14 @@ Copy-Item ".scratch\tier1-vocab\repo\src\McpGateway.Analyzers\Tier1Vocabulary.cs
   // 修改後（追加新別名）
   new GlossaryEntry("productId", "ProductId", "產品料號或唯一代碼 (Product ID)", new[] { "productCode", "prodId", "partNo", "materialNo" }),
   ```
+  > 提報的別名必須**確為同義**的歷史命名；僅語意相近（如時刻 vs 時數）不得列為別名，應另立標準詞（見 [CONTRACT_RULES.md §2.1](CONTRACT_RULES.md)）。
 
 * **情境 2：新增全域通用核心詞 (New Standard Entry)**
-  向 `Tier1Vocabulary.Entries` 陣列末端追加新項目：
+  向 `Tier1Vocabulary.Entries` 中**對應主題段落**追加新項目（分段順序即 AI 辨析順序，勿一律附加陣列末端）；`Description` 依三段式規範（定義＋邊界＋範例）撰寫：
   ```csharp
-  new GlossaryEntry("<standardCamel>", "<StandardPascal>", "<繁體中文說明>", new[] { "<alias1>", "<alias2>" }),
+  new GlossaryEntry("<standardCamel>", "<StandardPascal>",
+      "<定義>。<邊界：若欄位為 X 語意請用 Y>。<範例>",
+      new[] { "<alias1>", "<alias2>" }),
   ```
 
 ### 4.2 前置防呆與衝突檢核演算法
@@ -134,5 +137,16 @@ tea pr create --repo guy.mai/McpGateway.Core --title "feat(vocab): add aliases f
 ## 檢核狀態
 - [x] 通過別名衝突檢核 (No alias collisions found)
 - [x] 符合 CamelCase / PascalCase 命名規範
+
+## 詞條品質自查（新增標準詞時必填；僅擴充別名可略）
+- [x] 已在本地執行 `dotnet test`（詞庫一致性測試通過，無名稱/別名衝突）
+- [x] 已比對 CONTRACT_RULES.md §2.1 易混淆群清單 → 本詞條命中：<群名或「無」>
+- [x] 描述含三段式：定義 ✅｜與近義詞的辨析（若欄位為 X 請用 Y）✅｜格式範例 ✅
+- [x] 別名僅列確為同義之歷史命名，不含僅語意相近者
+- [x] 詞條已歸入 Tier1Vocabulary.cs 對應主題段落
+
+| 提議詞條 | 可能混淆的現有詞條 | 邊界寫在哪裡 |
+| :--- | :--- | :--- |
+| `<term>` | `<near1>`、`<near2>` | 「<辨析句摘要>」 |
 ```
 

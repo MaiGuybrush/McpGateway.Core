@@ -65,9 +65,10 @@ Analyze 100% of captured fields against the resolved Tier 1 vocabulary:
 Categorize every field into one of three buckets:
 1. **Tier 1 Standard Hit**: Exact match with standard term (e.g., `productId`, `eqptId`, `workCenter`, `quantityInProcess`, `status`).
 2. **Tier 1 Alias Match (Correction Required)**: Matches a known legacy alias (e.g., `productCode` -> `productId`, `machNo` -> `eqptId`, `wipQty` -> `quantityInProcess`, `wo` -> `workOrderId`). Flag with correction recommendation (`MCP0010`).
+   > ⚠️ **語意優先於名稱**：別名命中只是候選，不是結論。必須比對詞條 `Description` 中的語意邊界（辨析句，如「若欄位為一日内時刻請用 startTime」）與原始欄位的**實際值與格式**後才決定改名。例：`START_TIME` 值為 `14:30:00` 時對應 `startTime` 標準詞，不得因名稱相近而改名為 `startHours`（小數時數）。語意不符時維持原名或改用正確標準詞，並在決策理由欄寫明依據。
 3. **Domain-Specific / New Term**: Field does not exist in Tier 1. Formulate a compliant `camelCase`/`PascalCase` name without underscores (`MCP0012`) and craft a precise Traditional Chinese description.
 
-> **Completion Criterion**: 100% of input and output fields are classified into the three buckets, with proposed standard names, nullability, types, and descriptions prepared in a structured comparison table.
+> **Completion Criterion**: 100% of input and output fields are classified into the three buckets, with proposed standard names, nullability, types, and descriptions prepared in a structured comparison table. Every alias-match decision cites the vocabulary entry's semantic boundary.
 
 ---
 
@@ -79,10 +80,14 @@ Present the Field Alignment Table to the developer for explicit confirmation bef
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `prod_id` | `ProductId` / `productId` | ⚠️ Tier 1 別名校正 | `string` | 產品料號或唯一代碼 (Product ID) | 校正已知別名 (MCP0010) |
 | `wip_qty` | `QuantityInProcess` / `quantityInProcess` | ⚠️ Tier 1 別名校正 | `int` | 目前在製中數量（尚未完工） | 校正已知別名 (MCP0010) |
+| `START_HRS` | `StartHours` / `startHours` | ⚠️ Tier 1 別名校正 | `double` | 自下線起算的持續時數，小數小時 | 值為小數時數 304.969，屬持續時間，非時刻 |
+| `START_TIME` | `StartTime` / `startTime`（**不改名**） | ✅ Tier 1 標準詞 | `string` | 一日内時刻 HH:mm:ss | 詞條邊界：HH:mm:ss 時刻與 startHours（時數）為不同概念，維持標準詞 |
 | `remark` | `Remark` / `remark` | 💡 專案自定義 | `string?` | 額外備註或特殊注意事項說明 | 非 Tier 1，採駝峰規範 |
 
+「備註 / 決策理由」欄**必須引用詞條語意邊界作為判斷依據**（如後兩列），不得只寫 `校正已知別名 (MCP0010)`——那是結論不是理由，開發者無從稽核 Agent 的判斷是否正確。
+
 Highlight:
-- Corrections from legacy aliases (`MCP0010`).
+- Corrections from legacy aliases (`MCP0010`), each with the semantic-boundary evidence that justifies (or rejects) the rename.
 - Nullability decisions (`?` for optional inputs or nullable outputs).
 - Nested sub-DTOs (e.g., separating list items into `<Entity>ItemDto` and summary metrics into `<Entity>SummaryDto`).
 
@@ -114,6 +119,7 @@ When Step 2/3 identifies new aliases for existing Tier 1 terms or candidate new 
    - **New Standard Terms**: Propose a new `GlossaryEntry` for cross-department standard terms.
 2. **Pre-flight Validation**:
    - Perform case-insensitive collision checks to ensure proposed aliases do not conflict with existing standard terms or aliases in `Tier1Vocabulary.cs`.
+   - New standard terms must follow the three-part description rule (definition + semantic boundary + example) in [CONTRACT_RULES.md §2.1](CONTRACT_RULES.md), and be inserted into the matching topic section of `Tier1Vocabulary.cs`. Run `dotnet test` locally to verify `Tier1VocabularyConsistencyTests` passes before proposing.
 3. **Preview & Confirmation**:
    - Present a clear C# diff preview for `Tier1Vocabulary.cs`.
    - Provide a formatted PR summary table (Source Gateway/Department, Raw Field, Target Standard Term, Business Rationale).
