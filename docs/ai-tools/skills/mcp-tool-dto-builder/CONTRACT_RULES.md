@@ -33,7 +33,7 @@
 | **`MCP0011`** | Warning | DTO 公開屬性遺漏 `[Description]` 特性 | 補齊繁體中文業務描述與格式範例 |
 | **`MCP0012`** | Info | 屬性或參數包含底線（如 `PROD_ID`, `work_order`） | 調整為標準 CamelCase / PascalCase |
 
-> `MCP0010` 警告訊息自 Core `0.2.3-preview` 後（未進板變更，Issue #14）會完整附帶詞條 `Description`，並以繁體中文呈現；`MCP0011`/`MCP0012` 訊息亦已中文化。診斷 ID 不變，`#pragma warning disable` 與 `.editorconfig` 設定不受影響。
+> `MCP0010` 警告訊息自 Core `0.2.4-preview` 起會完整附帶詞條 `Description`，並以繁體中文呈現；`MCP0011`/`MCP0012` 訊息亦已中文化。診斷 ID 不變，`#pragma warning disable` 與 `.editorconfig` 設定不受影響。
 
 ---
 

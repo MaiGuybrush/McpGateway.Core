@@ -7,7 +7,7 @@
     <!-- ADR-015：不再獨立發布，改由 McpGateway.Core 單一套件合併帶出（analyzers/dotnet/cs） -->
     <IsPackable>false</IsPackable>
     <PackageId>McpGateway.Analyzers</PackageId>
-    <Version>0.2.3-preview</Version>
+    <Version>0.2.4-preview</Version>
     <Authors>Platform Team</Authors>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <NoWarn>$(NoWarn);RS2008;CS0618</NoWarn>

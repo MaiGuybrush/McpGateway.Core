@@ -1,21 +1,25 @@
 # Release notes
 
+## 0.2.4-preview
+
+**功能更新與錯誤修復 (Features & Bug Fixes)**
+1. **詞庫語意邊界治理（[Issue #14](docs/issue/issue-14-vocabulary-semantic-boundary.md) 方案 A-min）**：修復下游 MCP0010 曾把時刻欄位 `StartTime` 誤建議改名為時數詞 `startHours` 的問題——詞庫只定義「一個詞是什麼」而未定義「與近義詞如何區分」，且警告訊息不含語意資訊。
+   - 【詞彙】修正 `startHours` 語意：移除 `startTime` 別名；`startTime`（時刻）/`startDate`（日期）/`endDate`（日期）收錄為獨立標準詞彙，時數/時刻/日期/時間戳記語意互斥。下游同名 `StartTime` 欄位不再被 MCP0010 標記。
+   - 【詞彙】6 個易混淆群（時間/計數/數量與良率/設備階層/載具階層/位置階層/站點）共 35 條詞條描述補上語意邊界（定義＋辨析＋範例）；詞庫重排為 8 個主題段，使近義詞同段相鄰（Skill 讀入順序即 LLM 比對順序）。
+   - 【分析器】新增 `Tier1VocabularyValidator` 詞庫名稱一致性檢查（標準名重複／別名撞標準名／別名被兩條詞條共享三規則），由 `Tier1VocabularyConsistencyTests` 於 CI 強制，撞名衝突直接測試失敗（此前僅靠註解人工把關，`FindByAlias` 會靜默吞掉衝突）。
+2. **【分析器·破壞性】診斷訊息全面中文化並送達詞條描述**：`MCP0010` 警告完整附帶詞條 `Description` 與「若語意不符請忽略」提示；`MCP0010`/`MCP0011`/`MCP0012` 診斷與 Code Fix 標題改為繁體中文呈現。診斷 ID 不變，`#pragma warning disable` 與 `.editorconfig` 設定不受影響；下游若有依英文訊息文字做的 CI 比對需調整。
+3. **文件與 Skill**：新增 [Issue #14](docs/issue/issue-14-vocabulary-semantic-boundary.md) 詞彙語意邊界分析文件；修訂 [ADR-010](docs/architecture/adr/ADR-010-mcp-tool-field-standardization-and-structured-dto.md) 加入兩條治理原則（詞條描述須含語意邊界、診斷訊息須送達詞條描述）；`mcp-tool-dto-builder` Skill 增訂別名命中僅為候選須核對邊界、決策理由須引用邊界依據、詞條三段式撰寫規範與 PR 詞條品質自查段。
+4. **腳手架工具鏈修復（`templates/scaffold.ps1`、`add-module.ps1` 與範本）**：
+   - 修復 PowerShell 5.1 編碼問題：`scaffold.ps1` 補上 UTF-8 BOM（原缺 BOM 導致整檔解析失敗）、全部 `Get-Content` 讀檔加 `-Encoding UTF8`、含中文的範本檔補齊 BOM，避免中文被以 Big5 誤解碼導致產生專案的中文損毀與建置失敗；複製範本時排除 `obj`/`bin` 殘留建置產物。
+   - 修復 `add-module.ps1` 產生的 appsettings 片段結構錯誤（巢狀 `Downstream` 結構改為實際的扁平 `ConsulKey`/`FallbackBaseUrls`/`TimeoutSeconds`）、範本命名漂移（`ConsulKvKey` 改名 `ConsulKey`）、以及嚴重過時的 `__System__ModuleExtensionsTests.cs` 測試範本（原引用不存在的設定物件與解析器類別，導致新子系統測試專案必定編譯失敗）。
+   - 移除 `scaffold.ps1` 已失效的 `ConsulUrls` 正規表達式死碼。
+
 ## 0.2.3-preview
 
 **功能更新與錯誤修復 (Features & Bug Fixes)**
 1. **新增搬送/倉儲位置領域共通詞彙（[Issue #11](docs/issue/issue-11-glossary-tier-governance.md) §6.7）**：因應後續 CFMES、LcdMes 子系統預期沿用同一套 AMHS 搬送位置模型，提前將 `zoneId`/`shelfId`/`patiId`/`position` 收錄為 Tier 1 共通詞彙，避免各子系統日後各自命名造成別名清理成本。
 2. **修正子系統腳手架範本（`templates/template-module/`）殘留的舊版 Consul/Downstream 結構**：拉平巢狀 `DownstreamOptions`/`ConsulOptions`，刪除未使用的「範例2」服務探索式解析器，Consul KV 解析改為比照 ADR-013 `UacApiEndpointResolver` 直接以 `HttpClient` 存取，移除 `Consul` NuGet 套件參照。
 3. **修正 Consul Key 未設定時的不對稱回退邏輯**：先前邏輯為 Consul Key 未設定時仍會以寫死的猜測 Key 查詢 Consul，而非直接回退至本地 Fallback 設定；此行為與「Consul 節點清單未設定時直接回退」不一致，且有查到語意不符資料的風險。修正後範本統一為 Key 未設定時直接略過 Consul 查詢並回退。
-
-<!-- 未進板變更（下次 chore(release) 進板時移入新版本章節，見 docs/issue/issue-14-vocabulary-semantic-boundary.md）：
-     1.【詞彙】修正 startHours 語意：移除 startTime 別名；startTime（時刻）/startDate（日期）/endDate（日期）
-       收錄為獨立標準詞彙（§1.1、§7.2 #3）。下游同名 StartTime 欄位不再被 MCP0010 標記。
-     2.【詞彙】6 個易混淆群（時間/計數/數量與良率/設備階層/載具階層/位置階層/站點）共 35 條詞條
-       描述補上語意邊界（定義＋辨析＋範例）；詞庫重排為 8 個主題段（§7.2）。
-     3.【分析器·破壞性】MCP0010/0011/0012 診斷與 Code Fix 標題全面中文化，MCP0010 完整附帶詞條描述
-       （§7.3）。診斷 ID 不變，#pragma/.editorconfig 不受影響；下游若有依英文訊息文字做的 CI 比對需調整。
-     4.【分析器】新增詞庫名稱唯一性 CI 檢查（Tier1VocabularyConsistencyTests），撞名衝突直接測試失敗（§7.1）。
--->
 
 ## 0.2.2-preview
 

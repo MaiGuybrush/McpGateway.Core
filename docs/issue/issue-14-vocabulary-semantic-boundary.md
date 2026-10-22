@@ -22,7 +22,7 @@
 
 `startHours` 的 `startTime` 別名已移除，`startTime`（時刻）與 `startDate`（日期）已收錄為獨立標準詞彙，並補上兩條回歸測試；[Issue #11 §6.6](issue-11-glossary-tier-governance.md) 中 `StartTime → startHours` 的兩筆建議已標註失效並指向本文件。
 
-> **版本歸屬**：`v0.2.3-preview` 已於 2026-10-19 進板並打 tag（commit `1496eb8`），上述詞條修正**尚未進板**，故不列入 0.2.3 章節；已以註解形式暫記於 [ReleaseNote.md](../../ReleaseNote.md) 頂部，待下次 `chore(release)` 進板時移入新版本章節。
+> **版本歸屬**：`v0.2.3-preview` 已於 2026-10-19 進板並打 tag（commit `1496eb8`），上述詞條修正**未列入 0.2.3 章節**；已於 `v0.2.4-preview`（2026-10-22 `chore(release)`）進板，正式內容見 [ReleaseNote.md](../../ReleaseNote.md) 的 0.2.4-preview 章節。
 
 **本文件處理的是讓同一類錯誤不再發生的系統性機制**，而非該單點修正本身。
 
@@ -359,8 +359,8 @@ SyntaxFactory.Literal("欄位說明")   // 開發者仍需自行改寫
 | 2 | `WORKFLOW.md` §4.1 範本與 §5.1 規範對齊；三段式撰寫規範寫入 `CONTRACT_RULES.md`（§6 #6：管「AI 生成時怎麼寫」） | 人工 review 兩份文件不再出現與 §5.1 衝突的範本 |
 | 3 | `WORKFLOW.md` §5 的 PR description 範本增設「詞條品質自查」段（§6 #6：管「提交前怎麼自查」）：名稱衝突自查、是否命中易混淆群、邊界三段是否齊備、附「提議詞條 / 可能混淆詞條 / 邊界寫在哪裡」對照表 | 以一個模擬新增詞條走一次 Step 5，確認產出的 PR description 含自查段 |
 | 4 | 修訂 [ADR-010](../architecture/adr/ADR-010-mcp-tool-field-standardization-and-structured-dto.md)（§6 #7）：加入「詞條描述須含語意邊界（定義＋辨析＋範例）」與「診斷訊息須送達詞條描述，供開發者判斷語意」兩條原則 | 人工審閱 ADR 內容與 §5 設計一致；ADR 狀態/日期更新 |
-| 5 | 更新 [ReleaseNote.md](../../ReleaseNote.md)：維持頂部「未進板變更」暫記，於下次 `chore(release)` 進板時移入正式章節（含診斷訊息中文化為破壞性變更的說明） | 與實際異動及版本時序一致（勿寫入已打 tag 的舊版本章節） |
-| 6 | 進板時同步更新 [docs/README.md](../README.md) 版本表（Jenkins `Verify Documentation` stage 要求版本一致） | 本次非發版變更，**當前步驟不需動該檔**；僅在 `chore(release)` 時一併處理 |
+| 5 | 更新 [ReleaseNote.md](../../ReleaseNote.md)：維持頂部「未進板變更」暫記，於下次 `chore(release)` 進板時移入正式章節（含診斷訊息中文化為破壞性變更的說明） | ✅ 已於 `v0.2.4-preview` 進板時移入正式章節，與實際異動及版本時序一致 |
+| 6 | 進板時同步更新 [docs/README.md](../README.md) 版本表（Jenkins `Verify Documentation` stage 要求版本一致） | ✅ 已於 `v0.2.4-preview` `chore(release)` 一併處理 |
 
 > 后續待辦（本期不做，§6 #6）：以 CI 測試強制檢查「易混淆群詞條的 `Description` 必含邊界」，防止完全未寫；本期以 checklist + 規範文件把關。
 
