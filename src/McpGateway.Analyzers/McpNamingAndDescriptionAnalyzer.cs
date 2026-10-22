@@ -16,8 +16,8 @@ public class McpNamingAndDescriptionAnalyzer : DiagnosticAnalyzer
 
     private static readonly DiagnosticDescriptor RuleAlias = new(
         DiagnosticIdAlias,
-        "Property or parameter uses legacy alias instead of standard domain term",
-        "Symbol '{0}' uses legacy alias '{1}', suggest renaming to standard term '{2}'",
+        "屬性或參數使用歷史別名而非標準領域詞彙",
+        "符號 '{0}' 使用了歷史別名 '{1}'，建議改為標準詞 '{2}'（{3}）。若語意不符請忽略此警告。",
         "Naming",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
@@ -25,8 +25,8 @@ public class McpNamingAndDescriptionAnalyzer : DiagnosticAnalyzer
 
     private static readonly DiagnosticDescriptor RuleMissingDesc = new(
         DiagnosticIdMissingDesc,
-        "MCP Tool DTO property is missing [Description] attribute",
-        "Property '{0}' in MCP DTO '{1}' is missing a [Description] attribute",
+        "MCP Tool DTO 屬性缺少 [Description] 特性",
+        "屬性 '{0}'（MCP DTO '{1}'）缺少 [Description] 特性，請補上繁體中文語意說明與格式範例。",
         "Documentation",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
@@ -34,8 +34,8 @@ public class McpNamingAndDescriptionAnalyzer : DiagnosticAnalyzer
 
     private static readonly DiagnosticDescriptor RuleInvalidFormat = new(
         DiagnosticIdInvalidFormat,
-        "Property or parameter name does not follow standard naming convention",
-        "Property '{0}' should follow standard camelCase/PascalCase naming without underscores",
+        "屬性或參數名稱未遵循標準命名規範",
+        "屬性或參數 '{0}' 應使用不含底線的標準 camelCase/PascalCase 命名。",
         "Naming",
         DiagnosticSeverity.Info,
         isEnabledByDefault: true,
@@ -76,7 +76,8 @@ public class McpNamingAndDescriptionAnalyzer : DiagnosticAnalyzer
                 propertySymbol.Locations[0],
                 propName,
                 propName,
-                aliasMatch.StandardPascal);
+                aliasMatch.StandardPascal,
+                aliasMatch.Description);
             context.ReportDiagnostic(diagnostic);
         }
 
@@ -126,7 +127,8 @@ public class McpNamingAndDescriptionAnalyzer : DiagnosticAnalyzer
                 paramSymbol.Locations[0],
                 paramName,
                 paramName,
-                aliasMatch.StandardCamel);
+                aliasMatch.StandardCamel,
+                aliasMatch.Description);
             context.ReportDiagnostic(diagnostic);
         }
     }

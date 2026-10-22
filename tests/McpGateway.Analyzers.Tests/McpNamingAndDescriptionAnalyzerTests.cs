@@ -80,6 +80,62 @@ public class WorkCenterDto
     }
 
     [Fact]
+    public async Task AliasDiagnostic_CarriesVocabularyDescriptionForSemanticJudgement()
+    {
+        // Issue #14 §5.2：診斷訊息必須帶出詞條描述，開發者才有依據判斷
+        // 「我的欄位語意是否相符」，而非只能照抄改名建議。
+        var source = @"
+public class WipReportDto
+{
+    public double StartDurationHours { get; set; }
+}
+";
+        var diagnostics = await RunAnalyzerAsync(source);
+        var alias = diagnostics.Single(d => d.Id == McpNamingAndDescriptionAnalyzer.DiagnosticIdAlias);
+        var message = alias.GetMessage();
+
+        // 詞條描述含辨析句（「一日内時刻請用 startTime」），訊息必須完整包含，不得截斷。
+        Assert.Contains("一日内時刻請用 startTime", message, StringComparison.Ordinal);
+        Assert.Contains("若語意不符請忽略", message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task StartTimeAndStartDate_StandaloneTerms_NotReportedAsStartHoursAlias()
+    {
+        // startHours is a duration in hours (down-time since line start), while startTime is a
+        // time-of-day and startDate is a calendar date. They must stay separate standard terms so
+        // MCP0010 never suggests renaming a clock/date field into an hours field.
+        var source = @"
+public class WipReportDto
+{
+    public string StartTime { get; set; } = string.Empty;
+    public string StartDate { get; set; } = string.Empty;
+    public double StartHours { get; set; }
+}
+";
+        var diagnostics = await RunAnalyzerAsync(source);
+        var aliasDiagnostics = diagnostics.Where(d => d.Id == McpNamingAndDescriptionAnalyzer.DiagnosticIdAlias);
+
+        Assert.Empty(aliasDiagnostics);
+    }
+
+    [Fact]
+    public async Task StartDurationHoursAlias_EmitsMCP0010SuggestingStartHours()
+    {
+        var source = @"
+public class WipReportDto
+{
+    public double StartDurationHours { get; set; }
+}
+";
+        var diagnostics = await RunAnalyzerAsync(source);
+        var aliasDiagnostics = diagnostics.Where(d => d.Id == McpNamingAndDescriptionAnalyzer.DiagnosticIdAlias).ToList();
+
+        Assert.Single(aliasDiagnostics);
+        Assert.Contains("startHours", aliasDiagnostics[0].GetMessage(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task ProcessIdStandaloneTerm_NotReportedAsStepIdAlias()
     {
         // Regression guard for the processId/stepId conflict documented in

@@ -35,14 +35,16 @@ public class McpNamingAndDescriptionCodeFixProvider : CodeFixProvider
 
         if (diagnostic.Id == McpNamingAndDescriptionAnalyzer.DiagnosticIdAlias)
         {
-            // Extract standard name from message
+            // 此處另行呼叫 FindByAlias（非從 Diagnostic 取標準名），因此需自行取用
+            // aliasMatch.Description 帶出詞條語意，讓開發者在套用前即可判斷是否改名。
             var aliasMatch = Tier1Vocabulary.FindByAlias(node.ToString().Trim('\"', ' '));
             if (aliasMatch != null)
             {
                 var standardName = aliasMatch.StandardPascal;
+                var title = $"改名為標準詞 '{standardName}'（{aliasMatch.Description}）";
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        title: $"Rename to standard domain term '{standardName}'",
+                        title: title,
                         createChangedSolution: c => RenameSymbolAsync(context.Document, node, standardName, c),
                         equivalenceKey: nameof(McpNamingAndDescriptionAnalyzer.DiagnosticIdAlias)),
                     diagnostic);
@@ -52,7 +54,7 @@ public class McpNamingAndDescriptionCodeFixProvider : CodeFixProvider
         {
             context.RegisterCodeFix(
                 CodeAction.Create(
-                    title: "Add [Description(\"...\")] attribute",
+                    title: "加上 [Description(\"...\")] 特性",
                     createChangedDocument: c => AddDescriptionAttributeAsync(context.Document, node, c),
                     equivalenceKey: nameof(McpNamingAndDescriptionAnalyzer.DiagnosticIdMissingDesc)),
                 diagnostic);
