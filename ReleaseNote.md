@@ -1,5 +1,17 @@
 # Release notes
 
+## 0.2.5-preview
+
+**功能更新 (Features)**
+1. **【分析器】新增 `McpOutputContractAnalyzer`（`MCP0013`，[ADR-016](docs/architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)／[Issue #15](docs/issue/issue-15-output-contract-agent-layer-standardization.md)）**：修復標準化鏈在輸出層的斷點——先前分析器只檢查 C# 符號名，而 Agent 實際讀到的 JSON 鍵由 `[JsonPropertyName]` 決定；鏡射型別直接作為 tool 回傳型別時，即使 C# 屬性已改為標準詞，Agent 讀到的仍是下游方言（編譯期綠燈、目標層未標準化）。
+   - 規則：MCP tool 回傳可達閉包內的 public 輸出契約不得標註 `[JsonPropertyName]`，輸出 JSON 鍵一律由 C# 屬性名的 camelCase 推導，詞庫標準詞直接送達 Agent。
+   - 判定：以「從 tool 簽名追符號可達性」為唯一權威（`CompilationStartAction` 建一次閉包並快取），不靠類別名字後綴或目錄位置；`internal` 型別、從 tool 回傳線路不可達的型別（設定鏡射、Service 內部型別）、Core／Analyzers 組件型別（外部系統契約）三類結構性豁免，**無 tool 級豁免 attribute**。
+   - 過渡：預設 severity 為 `suggestion`（Info，不擋建置）；下游各專案在遷移完成的 PR 中以 `.editorconfig` 將 `MCP0013` 收為 `warning`，遷移一批收一批。本版無新增公開 API。
+2. **文件與 Skill**：`mcp-tool-dto-builder` 的 `CONTRACT_RULES.md` 新增 §2.2「鏡射/透傳契約規則」（三層形態：鏡射契約標 `internal` 止於 Service 層／契約映射 `Map*()`／輸出契約禁 `JsonPropertyName`、來源欄名寫進 `[Description]`），補上既有 Skill 對鏡射場景的空白；`SKILL.md`／`WORKFLOW.md` 診斷對照表補入 `MCP0013`。
+3. **腳手架（`templates/template-module/` 改為 ADR-016 契約佈局）**：新增 `Contracts/`（鏡射契約範例，`[JsonPropertyName]` 只准出現在這裡）與 `Dtos/`（輸入／輸出契約，詞庫標準詞、禁 `JsonPropertyName`），Service 範例展示契約映射 `Map*()`，Tool 只引用 `Dtos/` 的輸出契約；生成專案 README 附目錄佈局說明。全新 scaffold＋add-module 專案編譯與測試通過。
+
+> 下游遷移（Qsys Issapi 18 tool 兩層化、Mes Arymes 兩層化、Umsapi／Report 目錄對齊）於本版發佈後進行，屬 Agent 可見鍵名的 BREAKING 變更（硬切不保留舊鍵），各 repo 在遷移 PR 中公告。
+
 ## 0.2.4-preview
 
 **功能更新與錯誤修復 (Features & Bug Fixes)**
@@ -13,12 +25,6 @@
    - 修復 PowerShell 5.1 編碼問題：`scaffold.ps1` 補上 UTF-8 BOM（原缺 BOM 導致整檔解析失敗）、全部 `Get-Content` 讀檔加 `-Encoding UTF8`、含中文的範本檔補齊 BOM，避免中文被以 Big5 誤解碼導致產生專案的中文損毀與建置失敗；複製範本時排除 `obj`/`bin` 殘留建置產物。
    - 修復 `add-module.ps1` 產生的 appsettings 片段結構錯誤（巢狀 `Downstream` 結構改為實際的扁平 `ConsulKey`/`FallbackBaseUrls`/`TimeoutSeconds`）、範本命名漂移（`ConsulKvKey` 改名 `ConsulKey`）、以及嚴重過時的 `__System__ModuleExtensionsTests.cs` 測試範本（原引用不存在的設定物件與解析器類別，導致新子系統測試專案必定編譯失敗）。
    - 移除 `scaffold.ps1` 已失效的 `ConsulUrls` 正規表達式死碼。
-
-<!-- 未進板變更（下次 chore(release) 進板時移入新版本章節 0.2.5-preview，見 docs/issue/issue-15-output-contract-agent-layer-standardization.md §7.1）：
-1. 【分析器】新增 `McpOutputContractAnalyzer`（`MCP0013`，[ADR-016](docs/architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)）：MCP tool 回傳可達閉包內的 public 輸出契約不得標註 `[JsonPropertyName]`——Agent 可見 JSON 鍵一律由 C# 屬性名的 camelCase 推導，詞庫標準詞直接送達 Agent。判定採「從 tool 簽名追線路」可達性追蹤（`internal`／不可達／Core 組件型別結構性豁免，無 tool 級豁免 attribute）。過渡期預設 severity 為 suggestion（Info，不擋建置），下游各專案在遷移完成的 PR 中以 `.editorconfig` 收為 warning。
-2. 【Skill/文件】`mcp-tool-dto-builder` 的 `CONTRACT_RULES.md` 新增 §2.2「鏡射/透傳契約規則」（三層形態：鏡射契約 internal 止於 Service 層／契約映射 Map*()／輸出契約禁 JsonPropertyName），`SKILL.md`/`WORKFLOW.md` 診斷對照表補 `MCP0013`。
-3. 【腳手架】`templates/template-module/` 改為 ADR-016 契約佈局：新增 `Contracts/`（鏡射契約範例，`[JsonPropertyName]` 只准出現在這裡）與 `Dtos/`（輸入/輸出契約，詞庫標準詞），Service 範例展示契約映射 `Map*()`；生成專案 README 附目錄佈局說明。
--->
 
 ## 0.2.3-preview
 

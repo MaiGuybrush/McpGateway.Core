@@ -174,7 +174,7 @@ if (-not (Test-Path $slnPath)) {
 }
 
 # 5. 解析 Core 版本
-$coreVersion = "0.2.4-preview"
+$coreVersion = "0.2.5-preview"
 try {
     $hostXml = [xml](Get-Content $hostCsprojPath -Raw -Encoding UTF8)
     $pkgNode = $hostXml.SelectSingleNode("//PackageReference[@Include='McpGateway.Core']")

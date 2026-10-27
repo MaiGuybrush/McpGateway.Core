@@ -1,6 +1,7 @@
 ﻿# Issue #15 - 詞彙標準化未送達 Agent 可見的輸出 JSON 層；鏡射 tool 缺乏契約規則
 
 > **狀態**：已決議（2026-10-22 逐項確認，見 §6；實作依 §7 進行）。決策正式記錄為 [ADR-016](../architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)。
+> **版本歸屬**：§7.1 Core 三項已於 `v0.2.5-preview`（2026-10-27 `chore(release)`）進板，正式內容見 [ReleaseNote.md](../../ReleaseNote.md) 的 0.2.5-preview 章節；§7.2 下游遷移待本版發佈後進行。
 > **追蹤票**：[#15](http://tncimweb.cminl.oa/git-server/CIM-1-3-1/McpGateway.Core/issues/15)（已開，2026-10-22）
 > **建立日期**：2026-10-22
 > **類型**：Architecture / Agent DX / Tech Debt
