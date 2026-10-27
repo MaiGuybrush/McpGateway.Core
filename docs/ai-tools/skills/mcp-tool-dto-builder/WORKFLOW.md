@@ -70,6 +70,7 @@ Copy-Item ".scratch\tier1-vocab\repo\src\McpGateway.Analyzers\Tier1Vocabulary.cs
 | **`MCP0010`** | Warning | 使用了已知歷史別名（如 `ProductCode`, `prodId`, `wipQty`） | 建議更換為標準名稱（如 `ProductId`, `QuantityInProcess`） |
 | **`MCP0011`** | Warning | DTO 公開屬性遺漏 `[Description]` 特性 | 補齊繁體中文業務描述與格式範例 |
 | **`MCP0012`** | Info | 屬性或參數包含底線（如 `PROD_ID`, `work_order`） | 調整為標準 CamelCase / PascalCase |
+| **`MCP0013`** | Info（預設 suggestion） | 輸出契約（tool 回傳可達閉包內的 public 型別）屬性標註 `[JsonPropertyName]` | 移除 `JsonPropertyName`；鏡射契約標 `internal` 止於 Service 層，輸出欄位使用詞庫標準詞（見 [CONTRACT_RULES.md §2.2](CONTRACT_RULES.md)） |
 
 ---
 

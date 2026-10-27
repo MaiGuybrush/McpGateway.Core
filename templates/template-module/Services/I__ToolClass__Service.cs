@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using McpGateway.__Department__.__System__.Tools.__ToolClass__;
+using McpGateway.__Department__.__System__.Dtos;
 
 namespace McpGateway.__Department__.__System__.Services;
 

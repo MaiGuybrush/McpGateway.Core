@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Moq;
 using Xunit;
+using McpGateway.__Department__.__System__.Dtos;
 using McpGateway.__Department__.__System__.Services;
 using McpGateway.__Department__.__System__.Tools.__ToolClass__;
 

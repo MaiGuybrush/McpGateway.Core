@@ -216,9 +216,9 @@ src/McpGateway.Qsys.Issapi/
 
 | # | 項目 | 驗證方式 |
 |---|---|---|
-| 1 | `McpOutputContractAnalyzer`：可達性閉包＋MCP0013（預設 severity `suggestion`）；不觸發分支＝`internal`／不可達／Core 組件（無 tool 級豁免，§6 #3 推翻記錄） | Analyzers 測試：tool 可達正例、`internal` 反例、設定鏡射不可達反例（`ConsulShopItem` 形態）、Core 型別豁免反例；`dotnet test` 通過 |
-| 2 | [ADR-016](../architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)＋ADR-010 交叉引用 ✅（已隨本文件完成，2026-10-22）；`CONTRACT_RULES.md` 增「鏡射/透傳契約規則」一節 ⬜ | 人工審閱；與 §5.1 範本一致 |
-| 3 | `templates/`（scaffold/add-module/template-module）生成 `Contracts/`＋`Dtos/` 骨架與契約映射範例 | 全新 scaffold 專案 build 通過，範例含鏡射→映射→輸出三層 |
+| 1 | `McpOutputContractAnalyzer`：可達性閉包＋MCP0013（預設 severity `suggestion`）；不觸發分支＝`internal`／不可達／Core 組件（無 tool 級豁免，§6 #3 推翻記錄）✅（2026-10-27） | Analyzers 測試：tool 可達正例、`internal` 反例、設定鏡射不可達反例（`ConsulShopItem` 形態）、Core 型別豁免反例；`dotnet test` 通過 ✅（`McpOutputContractAnalyzerTests` 7 案全綠） |
+| 2 | [ADR-016](../architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)＋ADR-010 交叉引用 ✅（已隨本文件完成，2026-10-22）；`CONTRACT_RULES.md` 增「鏡射/透傳契約規則」一節 ✅（§2.2，2026-10-27） | 人工審閱；與 §5.1 範本一致 |
+| 3 | `templates/`（scaffold/add-module/template-module）生成 `Contracts/`＋`Dtos/` 骨架與契約映射範例 ✅（2026-10-27） | 全新 scaffold 專案 build 通過，範例含鏡射→映射→輸出三層 ✅（scaffold wip＋add-module mes 全 solution build 0 錯誤、測試全綠） |
 
 ### 7.2 下游（Core 0.2.5-preview 發佈後）
 
@@ -238,5 +238,5 @@ src/McpGateway.Qsys.Issapi/
 - [ADR-010](../architecture/adr/ADR-010-mcp-tool-field-standardization-and-structured-dto.md) — 工具輸出 DTO 標準化（已加 ADR-016 交叉引用）
 - [ADR-014](../architecture/adr/ADR-014-intra-department-subsystem-modules.md) — 子系統模組（tool 回傳型別所在層）
 - [GLOSSARY.md](../../GLOSSARY.md)「Tool 契約」段 — 鏡射契約／輸出契約／契約映射 正式術語
-- `docs/ai-tools/skills/mcp-tool-dto-builder/CONTRACT_RULES.md` — 待補鏡射/透傳契約規則
+- `docs/ai-tools/skills/mcp-tool-dto-builder/CONTRACT_RULES.md` §2.2 — 鏡射/透傳契約規則（✅ 已補，2026-10-27）
 - 範本證據：Qsys `Umsapi`（`UmsApiContracts.cs`/`UmsapiReportService.cs`/`ReportDtos.cs`）、Report `Mfg`（`MfgWipRawRecord.cs`→`WipItemDto.cs`）

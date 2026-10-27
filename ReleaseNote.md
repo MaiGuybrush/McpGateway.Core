@@ -14,6 +14,12 @@
    - 修復 `add-module.ps1` 產生的 appsettings 片段結構錯誤（巢狀 `Downstream` 結構改為實際的扁平 `ConsulKey`/`FallbackBaseUrls`/`TimeoutSeconds`）、範本命名漂移（`ConsulKvKey` 改名 `ConsulKey`）、以及嚴重過時的 `__System__ModuleExtensionsTests.cs` 測試範本（原引用不存在的設定物件與解析器類別，導致新子系統測試專案必定編譯失敗）。
    - 移除 `scaffold.ps1` 已失效的 `ConsulUrls` 正規表達式死碼。
 
+<!-- 未進板變更（下次 chore(release) 進板時移入新版本章節 0.2.5-preview，見 docs/issue/issue-15-output-contract-agent-layer-standardization.md §7.1）：
+1. 【分析器】新增 `McpOutputContractAnalyzer`（`MCP0013`，[ADR-016](docs/architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)）：MCP tool 回傳可達閉包內的 public 輸出契約不得標註 `[JsonPropertyName]`——Agent 可見 JSON 鍵一律由 C# 屬性名的 camelCase 推導，詞庫標準詞直接送達 Agent。判定採「從 tool 簽名追線路」可達性追蹤（`internal`／不可達／Core 組件型別結構性豁免，無 tool 級豁免 attribute）。過渡期預設 severity 為 suggestion（Info，不擋建置），下游各專案在遷移完成的 PR 中以 `.editorconfig` 收為 warning。
+2. 【Skill/文件】`mcp-tool-dto-builder` 的 `CONTRACT_RULES.md` 新增 §2.2「鏡射/透傳契約規則」（三層形態：鏡射契約 internal 止於 Service 層／契約映射 Map*()／輸出契約禁 JsonPropertyName），`SKILL.md`/`WORKFLOW.md` 診斷對照表補 `MCP0013`。
+3. 【腳手架】`templates/template-module/` 改為 ADR-016 契約佈局：新增 `Contracts/`（鏡射契約範例，`[JsonPropertyName]` 只准出現在這裡）與 `Dtos/`（輸入/輸出契約，詞庫標準詞），Service 範例展示契約映射 `Map*()`；生成專案 README 附目錄佈局說明。
+-->
+
 ## 0.2.3-preview
 
 **功能更新與錯誤修復 (Features & Bug Fixes)**

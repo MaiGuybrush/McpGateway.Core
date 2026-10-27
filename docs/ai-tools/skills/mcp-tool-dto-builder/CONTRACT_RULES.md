@@ -32,8 +32,62 @@
 | **`MCP0010`** | Warning | 使用了已知歷史別名（如 `ProductCode`, `prodId`, `wipQty`） | 先核對警告中附帶的詞條語意邊界與欄位實際值；語意相符才更名為標準詞（如 `ProductId`, `QuantityInProcess`），語意不符（如時刻欄位被建議改為時數詞）應忽略警告 |
 | **`MCP0011`** | Warning | DTO 公開屬性遺漏 `[Description]` 特性 | 補齊繁體中文業務描述與格式範例 |
 | **`MCP0012`** | Info | 屬性或參數包含底線（如 `PROD_ID`, `work_order`） | 調整為標準 CamelCase / PascalCase |
+| **`MCP0013`** | Info（預設 suggestion，不擋建置） | 輸出契約（tool 回傳可達閉包內的 public 型別）屬性標註 `[JsonPropertyName]` | 移除 `JsonPropertyName`，輸出鍵由 C# 屬性名 camelCase 推導；鏡射契約改標 `internal` 並止於 Service 層（見 §2.2） |
 
 > `MCP0010` 警告訊息自 Core `0.2.4-preview` 起會完整附帶詞條 `Description`，並以繁體中文呈現；`MCP0011`/`MCP0012` 訊息亦已中文化。診斷 ID 不變，`#pragma warning disable` 與 `.editorconfig` 設定不受影響。
+> `MCP0013` 自 Core `0.2.5-preview` 起提供（[ADR-016](../../architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)）。過渡期預設 severity 為 suggestion；各下游專案在遷移完成的 PR 中以 `.editorconfig` 將 `MCP0013` 收為 `warning`，遷移一批收一批。
+
+---
+
+## 2.2 鏡射/透傳契約規則（ADR-016 / Issue #15）
+
+**問題**：分析器檢查的是 C# 符號名，但 Agent 實際讀到的 JSON 鍵由 `[JsonPropertyName]` 決定。若 tool 直接回傳帶 `JsonPropertyName` 的下游鏡射型別（單層透傳），即使 C# 屬性已改為標準詞，Agent 讀到的仍是下游方言——編譯期綠燈，目標層卻沒有標準化。
+
+**規則 R1（絕對，無 tool 級豁免）**：
+
+1. **輸出契約**（tool 回傳型別及其可達閉包內的 public 型別）**不得標註 `[JsonPropertyName]`**。輸出 JSON 鍵一律由 C# 屬性名的 camelCase 推導 → 詞庫標準詞直接成為 Agent 可見鍵名。
+2. **鏡射契約**（跟隨下游 JSON 鍵的型別）必須標 `internal`，只准出現在 Service 層內部（`[JsonPropertyName]` 只准出現在這裡）。
+3. 下游方言 → 詞庫標準詞的轉換只在 **契約映射**（Service 層 `Map*()`）發生一次。
+4. 鏡射契約的 C# 屬性名仍受 `MCP0010`/`MCP0012` 約束（命名紀律對所有代碼有效，含鏡射契約本身）。
+5. 下游來源欄名寫進輸出契約的 `[Description]`（如「下游欄位 `dpiqcrrxo.STAY_HRS`」），對照能力由描述承載。
+
+**三層形態範本**（以 Qsys Umsapi 為範本）：
+
+```csharp
+// ① 鏡射契約：internal、跟隨下游 JSON 鍵，止於 Service 層（放 Contracts/）
+internal sealed class UpstreamGurobiInfeasibleResult
+{
+    [JsonPropertyName("totalCount")] public int TotalCount { get; set; }
+    [JsonPropertyName("createTime")] public string CreateTime { get; set; } = string.Empty;
+}
+
+// ② 契約映射（唯一允許出現「鏡射 → 輸出」轉換的地方，在 Service 層）
+private static GurobiInfeasibleResponse MapResult(UpstreamGurobiInfeasibleResult u) => new(
+    TotalItems: u.TotalCount,      // 下游方言 → 詞庫標準詞
+    GeneratedAt: u.CreateTime
+);
+
+// ③ 輸出契約：public sealed record、無 JsonPropertyName、欄位 = 詞庫標準詞（放 Dtos/）
+public sealed record GurobiInfeasibleResponse(
+    [property: Description("符合查詢條件的項目總筆數…")] int TotalItems,
+    [property: Description("報告/資料產出之 UTC 時間戳記…下游欄位 createTime")] DateTimeOffset? GeneratedAt
+);
+```
+
+**目錄佈局約定**（導航輔助，非判定權威——判定權威僅有 tool 回傳可達性追蹤）：
+
+```
+Contracts/   ← ① 鏡射契約：全部 internal（[JsonPropertyName] 只准出現在這裡）
+Dtos/        ← ③ 輸出契約：public，欄位 = 詞庫標準詞（禁止 [JsonPropertyName]）
+Services/    ← ② 映射發生地（Map*()）
+Tools/
+```
+
+**結構性豁免**（MCP0013 不觸發）：`internal` 型別；從 tool 回傳線路不可達的型別（設定鏡射如 Consul KV、Service 內部型別）；Core / Analyzers 組件定義的型別（外部系統契約）。
+
+**單層透傳＝反模式**：「忠實鏡射」的忠實指資料完整性（欄全可空、值不加工），與鍵名無關；兩層化可完整保留資料完整性，同時讓 Agent 讀到標準詞。欄位裁剪允許逐 tool 有理由進行（token 收益），但決定必須記錄於遷移 PR 的欄位對齊表。
+
+完整背景與決議見 [Issue #15](../../issue/issue-15-output-contract-agent-layer-standardization.md) 與 [ADR-016](../../architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)。
 
 ---
 

@@ -104,9 +104,9 @@ Generate complete, production-ready C# code:
 3. **Nested DTOs**: Create dedicated records for collection items (e.g., `<Entity>ItemDto`) and nested objects, ensuring every nested property has its own `[property: Description]`.
 4. **Tool Class Method Skeleton**: `[McpServerToolType]` class containing `[McpServerTool(UseStructuredContent = true)]` method signature.
 
-> Strictly adhere to [CONTRACT_RULES.md](CONTRACT_RULES.md) for immutable positional record syntax, Description attributes, and Roslyn MCP0010-MCP0012 compliance.
+> Strictly adhere to [CONTRACT_RULES.md](CONTRACT_RULES.md) for immutable positional record syntax, Description attributes, Roslyn MCP0010-MCP0013 compliance, and the mirror/passthrough contract rules (§2.2: output contracts must not carry `[JsonPropertyName]`; mirror contracts stay `internal` behind the Service layer).
 
-> **Completion Criterion**: Output C# code is fully typed, compiles without Roslyn `MCP0010`, `MCP0011`, or `MCP0012` warnings, and exposes complete metadata for AI agent structured reasoning.
+> **Completion Criterion**: Output C# code is fully typed, compiles without Roslyn `MCP0010`, `MCP0011`, `MCP0012`, or `MCP0013` warnings, and exposes complete metadata for AI agent structured reasoning.
 
 ---
 
