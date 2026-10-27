@@ -21,3 +21,17 @@ _Avoid_: 詞彙項目
 
 **詞彙權威來源（Vocabulary Authority）**:
 詞彙治理機制中，實際被下游工具（如 Roslyn 分析器）讀取並生效的詞彙定義來源。多份文件或程式碼宣稱提供同一層級的詞彙時，必須明確指定其中一份為權威來源，其餘應視為衍生文件或刪除。
+
+## Tool 契約（Tool Contracts）
+
+**鏡射契約（Mirror Contract）**:
+跟隨上游系統 JSON 鍵名、僅存在於 Service 層內部的資料契約；對下游負責，不對 Agent 暴露。
+_Avoid_: 鏡射 DTO、上游模型、raw DTO
+
+**輸出契約（Output Contract）**:
+Gateway 對 Agent 承諾的欄位契約；其欄位名即 Agent 讀到的鍵名，一律使用 Tier 1 詞彙的標準詞。
+_Avoid_: 輸出 DTO、回應模型
+
+**契約映射（Contract Mapping）**:
+Service 層將鏡射契約的欄位逐項轉換為輸出契約欄位的轉換步驟；是下游方言成為標準詞的唯一發生點。
+_Avoid_: 欄位轉換、DTO 轉換（與「別名」概念區隔）

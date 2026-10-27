@@ -7,6 +7,8 @@
 
 > **修訂紀錄（2026-10-22）**：依 [Issue #14](http://tncimweb.cminl.oa/git-server/CIM-1-3-1/McpGateway.Core/issues/14) 於第 2、3 支柱新增兩條治理原則：「詞條描述須含語意邊界」與「診斷訊息須送達詞條描述」。成因：詞條 `startHours`（持續時數）曾把 `startTime`（時刻）列為別名，`MCP0010` 據此對下游時刻欄位提出錯誤改名建議，且警告訊息不含任何語意資訊，開發者無從判斷是否套用。
 
+> **修訂紀錄（2026-10-22）**：本 ADR 的標準化範圍原止於 C# 原始碼層；Agent 實際讀到的輸出 JSON 鍵由 `[JsonPropertyName]` 決定，該層的契約分層（鏡射契約止於 Service、輸出契約禁 `JsonPropertyName`）與新診斷 `MCP0013` 由 [ADR-016](ADR-016-agent-layer-output-contract-standardization.md)（[Issue #15](../../issue/issue-15-output-contract-agent-layer-standardization.md)）決定，為本 ADR 支柱 1/3 的補完，無牴觸。
+
 ---
 
 ## 背景 (Context)
