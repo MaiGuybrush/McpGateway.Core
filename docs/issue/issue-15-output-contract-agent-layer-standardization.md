@@ -1,7 +1,7 @@
 ﻿# Issue #15 - 詞彙標準化未送達 Agent 可見的輸出 JSON 層；鏡射 tool 缺乏契約規則
 
-> **狀態**：已決議（2026-10-22 逐項確認，見 §6；實作依 §7 進行）。決策正式記錄為 [ADR-016](../architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)。
-> **版本歸屬**：§7.1 Core 三項已於 `v0.2.5-preview`（2026-10-27 `chore(release)`）進板，正式內容見 [ReleaseNote.md](../../ReleaseNote.md) 的 0.2.5-preview 章節；§7.2 下游遷移待本版發佈後進行。
+> **狀態**：✅ 已完成（2026-10-27）。§7.1 Core 與 §7.2 下游遷移全部進板；決策正式記錄為 [ADR-016](../architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)。
+> **版本歸屬**：§7.1 Core 三項已於 `v0.2.5-preview`（2026-10-27 `chore(release)`）進板，正式內容見 [ReleaseNote.md](../../ReleaseNote.md) 的 0.2.5-preview 章節；§7.2 下游遷移已於同日完成——Qsys `9.0.5`、Mes `9.0.1`、Report `9.0.3` 進板（各 repo ReleaseNote 對應章節標 BREAKING）。
 > **追蹤票**：[#15](http://tncimweb.cminl.oa/git-server/CIM-1-3-1/McpGateway.Core/issues/15)（已開，2026-10-22）
 > **建立日期**：2026-10-22
 > **類型**：Architecture / Agent DX / Tech Debt
@@ -225,11 +225,11 @@ src/McpGateway.Qsys.Issapi/
 
 | # | Repo | 項目 | 驗證方式 |
 |---|---|---|---|
-| 4 | Qsys | Issapi 18 tool 全量兩層化＋目錄搬移（`Contracts/`＋`Dtos/`）；契約映射預設 1:1，裁剪逐 tool 記錄於 PR 對齊表；`.editorconfig` 收 MCP0013 為 warning | `dotnet build` 0 警告；`tools/list` 輸出 schema 鍵全為詞庫標準詞；測試更新後全綠；ReleaseNote 標 BREAKING＋通知整合方 |
-| 5 | Qsys | Umsapi 目錄對齊（`UmsApiContracts.cs`→`Contracts/`、`ReportDtos.cs`→`Dtos/`）；`add-subsystem`/`add-tool` 技能與 worked-example 改兩層流程 | build/test 通過；技能範本與 §5.1 一致 |
-| 6 | Mes | Arymes 兩層化（機械性）：鏡射契約標 internal 搬 `Contracts/`；輸出契約去 `JsonPropertyName`、來源欄名寫進 `[Description]`；`.editorconfig` 收 MCP0013 為 warning；ReleaseNote 標 BREAKING（`stay_hours`→`stayHours` 等） | build 0 警告、test 通過；`tools/list` schema 鍵為標準詞 |
-| 7 | Report | Mfg 目錄對齊（`MfgWipRawRecord`→`Contracts/`、`WipItemDto`→`Dtos/`）；`IMfgReportService` 收 `internal` 或將 `FetchRawWipAsync`（回傳鏡射契約）移出介面（§5.3 已知空隙）；`.editorconfig` 收 warning | build/test 通過；public 表面不再出現鏡射契約 |
-| 8 | 跨 repo 驗收 | 同一 Agent 對照 Report 與遷移後 Issapi 的同語意欄位 | 鍵名一致（`totalItems`/`generatedAt` 等），無需逐系統學習 |
+| 4 | Qsys | Issapi 18 tool 全量兩層化＋目錄搬移（`Contracts/`＋`Dtos/`）；契約映射預設 1:1，裁剪逐 tool 記錄於 PR 對齊表；`.editorconfig` 收 MCP0013 為 warning ✅（2026-10-27，Qsys `9.0.5`；1:1 無裁剪，對齊表見 Qsys `docs/issue-15-issapi-field-alignment.md`） | `dotnet build` 0 警告 ✅；`tools/list` 輸出 schema 鍵全為詞庫標準詞 ✅（`OutputContractJsonKeysTests` 守護）；測試更新後全綠 ✅（Issapi 33/33）；ReleaseNote 標 BREAKING＋通知整合方 ✅ |
+| 5 | Qsys | Umsapi 目錄對齊（`UmsApiContracts.cs`→`Contracts/`、`ReportDtos.cs`→`Dtos/`）；`add-subsystem`/`add-tool` 技能與 worked-example 改兩層流程 ✅（2026-10-27，隨 Qsys `9.0.5`） | build/test 通過 ✅（Umsapi 27/27）；技能範本與 §5.1 一致 ✅ |
+| 6 | Mes | Arymes 兩層化（機械性）：鏡射契約標 internal 搬 `Contracts/`；輸出契約去 `JsonPropertyName`、來源欄名寫進 `[Description]`；`.editorconfig` 收 MCP0013 為 warning；ReleaseNote 標 BREAKING（`stay_hours`→`stayHours` 等） ✅（2026-10-27，Mes `9.0.1`） | build 0 警告 ✅、test 通過 ✅（Arymes 15/15）；`tools/list` schema 鍵為標準詞 ✅ |
+| 7 | Report | Mfg 目錄對齊（`MfgWipRawRecord`→`Contracts/`、`WipItemDto`→`Dtos/`）；`IMfgReportService` 收 `internal` 或將 `FetchRawWipAsync`（回傳鏡射契約）移出介面（§5.3 已知空隙）；`.editorconfig` 收 warning ✅（2026-10-27，Report `9.0.3`；採移出介面＋解析器收 internal） | build/test 通過 ✅（Mfg 77/77）；public 表面不再出現鏡射契約 ✅ |
+| 8 | 跨 repo 驗收 | 同一 Agent 對照 Report 與遷移後 Issapi 的同語意欄位 ✅（2026-10-27） | 鍵名一致（`totalItems`/`generatedAt` 等），無需逐系統學習 ✅——兩 repo 輸出契約均由 C# 標準詞屬性名 camelCase 推導，無 `JsonPropertyName` |
 
 ## 8. 相關文件
 
