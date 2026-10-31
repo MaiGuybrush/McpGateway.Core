@@ -45,7 +45,7 @@ flowchart TD
 | :--- | :--- | :--- | :--- |
 | **P1** | 工作區 Glob | `**/Tier1Vocabulary.cs` | 搜尋本機工作區原始碼（適用於 Central Core 開發環境） |
 | **P2** | ProjectReference 解析 | `.csproj` / `.sln` 中 `<ProjectReference Include="..." />` | 解析跨專案相對路徑上游原始碼 |
-| **P3** | PackageReference 版號對照 | `<PackageReference Include="McpGateway.Analyzers" Version="vX.Y.Z" />` | 取得 NuGet/Gitea Package Tag 版本 |
+| **P3** | PackageReference 版號對照 | `<PackageReference Include="McpGateway.Core" Version="vX.Y.Z" />`（相容舊版 `McpGateway.Analyzers`） | 取得 NuGet/Gitea Package Tag 版本 |
 | **P4** | Gitea 遠端下載 | Gitea 預設庫設定或開發者提供之 repositoryUrl | 使用 `tea` CLI / Git 擷取至 `.scratch/tier1-vocab/` |
 | **P5** | 終端提示 (Fallback) | Prompt Developer | 提示開發者提供本機路徑或 Gitea URL |
 

@@ -226,7 +226,7 @@
                     <i class="fa-solid fa-circle-check mr-1.5"></i> 未來：統一契約 (Standardized)
                   </div>
                   <ul class="text-slate-300 list-disc list-inside space-y-0.5 text-[11px]">
-                    <li>全域核心字典統一名稱：標準 <span class="code-chip text-emerald-300">productId</span></li>
+                    <li>Tier 1 詞彙統一名稱：標準 <span class="code-chip text-emerald-300">productId</span></li>
                     <li>結構化不可變 DTO，自動暴露 JSON OutputSchema</li>
                     <li>Roslyn IDE 燈泡一鍵自動修復，開發零痛感</li>
                   </ul>
@@ -367,10 +367,10 @@
                 <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
                   2
                 </div>
-                <h3 class="font-bold text-slate-100 text-sm">單層核心詞庫治理</h3>
+                <h3 class="font-bold text-slate-100 text-sm">單層 Tier 1 詞彙治理</h3>
                 <p class="text-[12px] text-slate-300 leading-relaxed">
-                  <strong>中央核心字典</strong>：集中維護製造/半導體共通概念（<code class="code-chip">productId</code>, <code class="code-chip">lotId</code>, <code class="code-chip">eqptId</code> 等）及歷史別名。<br>
-                  子系統專屬詞彙（如 <code class="code-chip">driftScore</code>）直接寫在 DTO <code class="code-chip">[Description]</code>，不再另建本地字典（<a href="https://tncimweb.cminl.oa/git-server/CIM-1-3-1/McpGateway.Core/issues/11" class="text-indigo-300 underline">Issue #11</a>）。
+                  <strong>Tier 1 詞彙（Core Domain Vocabulary）</strong>：集中維護製造/半導體共通概念（<code class="code-chip">productId</code>, <code class="code-chip">lotId</code>, <code class="code-chip">eqptId</code> 等）及歷史別名。<br>
+                  子系統專屬詞彙（如 <code class="code-chip">driftScore</code>）直接寫在 DTO <code class="code-chip">[Description]</code>，不再另建本地詞庫（<a href="https://tncimweb.cminl.oa/git-server/CIM-1-3-1/McpGateway.Core/issues/11" class="text-indigo-300 underline">Issue #11</a>）。
                 </p>
               </div>
               <div class="pt-2 border-t border-slate-800 text-[11px] text-indigo-300">
@@ -488,7 +488,7 @@
                     <tr class="hover:bg-slate-800/40">
                       <td class="p-2.5 font-medium text-slate-200">業務特殊例外</td>
                       <td class="p-2.5">無法彈性處理特殊專案欄位</td>
-                      <td class="p-2.5">支援 local 字典擴充與 pragma 壓制</td>
+                      <td class="p-2.5">專屬詞直寫 DTO <code class="code-chip">[Description]</code> 並支援 pragma 壓制</td>
                     </tr>
                     <tr class="hover:bg-slate-800/40">
                       <td class="p-2.5 font-medium text-slate-200">推動結果</td>

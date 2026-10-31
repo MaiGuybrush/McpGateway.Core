@@ -209,6 +209,10 @@ await app.RunMcpGatewayAsync();
 | **MCP001** | Error | `McpServerToolTypeRequired` | MCP 工具類別必須標註 `[McpServerToolType]` 特性。 |
 | **MCP002** | Warning | `McpToolContractConvention` | MCP 工具方法參數與回傳型別必須符合結構化 DTO 契約規範。 |
 | **MCP003** | Warning | `McpSubsystemToolNaming` | **子系統工具三段式命名規範**：子系統專案中的 MCP 工具名稱強制遵循 `{department}_{system}_{action}`（全小寫 ASCII、英數字與底線）。Visual Studio / VS Code 支援一鍵重構修正 (CodeFix Provider)。 |
+| **MCP0010** | Warning | `McpNamingAndDescription` | 偵測已知歷史別名，建議改用 `Tier1Vocabulary.cs` 的 Tier 1 標準詞彙並附帶語意邊界說明。 |
+| **MCP0011** | Warning | `McpNamingAndDescription` | 偵測公開屬性遺漏 `[Description]` 特性，提醒補齊繁體中文說明。 |
+| **MCP0012** | Info | `McpNamingAndDescription` | 檢查屬性或參數是否符合無底線之 camelCase / PascalCase 命名規範。 |
+| **MCP0013** | Info / Warning | `McpOutputContract` | 強制**輸出契約**（tool 回傳可達閉包內的 public 型別）不得標註 `[JsonPropertyName]`，使鏡射契約止於 Service 層（[ADR-016](./docs/architecture/adr/ADR-016-agent-layer-output-contract-standardization.md)）。 |
 
 ---
 
@@ -218,7 +222,7 @@ await app.RunMcpGatewayAsync();
 
 👉 **[`mcp-tool-dto-builder`](./docs/ai-tools/skills/mcp-tool-dto-builder/SKILL.md)**（目錄路徑：`docs/ai-tools/skills/mcp-tool-dto-builder`）
 
-- **動態詞庫探測**：自動解析核心製造業字典 `Tier1Vocabulary.cs`。
+- **動態詞庫探測**：自動解析 Tier 1 詞彙權威來源 `Tier1Vocabulary.cs`。
 - **欄位標準化與別名校正**：自動將歷史欄位（如 `prod_id`、`wip_qty`）校正為符合 [ADR-010](./docs/architecture/adr/ADR-010-mcp-tool-field-standardization-and-structured-dto.md) 的標準詞彙。
 - **不可變結構化契約**：一鍵產出 Positional Record DTO、繁體中文 `[Description]` 特性與工具骨架。
 
@@ -235,8 +239,11 @@ await app.RunMcpGatewayAsync();
 | [ADR-005](./docs/architecture/adr/ADR-005-tool-versioning.md) | Tool-level versioning (deferred to MVP+1) | ✅ Approved |
 | [ADR-006](./docs/architecture/adr/ADR-006-security-model.md) | Authentication proxy pattern | ✅ Approved |
 | [ADR-009](./docs/architecture/adr/ADR-009-department-gateway-split.md) | Per-department gateway repository split | ✅ Approved |
-| [ADR-010](./docs/architecture/adr/ADR-010-mcp-tool-field-standardization-and-structured-dto.md) | MCP Tool 欄位命名標準化、結構化 DTO 回傳與編譯期分析器治理 | ✅ Approved |
+| [ADR-010](./docs/architecture/adr/ADR-010-mcp-tool-field-standardization-and-structured-dto.md) | MCP Tool 欄位命名標準化、結構化輸出契約回傳與編譯期分析器治理 | ✅ Approved |
+| [ADR-013](./docs/architecture/adr/ADR-013-uac-api-key-auth-and-consul-integration.md) | UAC API Key 認證、Consul 動態服務發現與啟動期驗證 | ✅ Approved |
 | [ADR-014](./docs/architecture/adr/ADR-014-intra-department-subsystem-modules.md) | 部門內部多子系統模組化、端點分流隔離 (`/{dept}/{system}/mcp`) 與 MCP003 命名規範 | ✅ Approved |
+| [ADR-015](./docs/architecture/adr/ADR-015-single-package-analyzers-merge.md) | Core 單一套件合併發布 Analyzers（Single-Package Distribution） | ✅ Approved |
+| [ADR-016](./docs/architecture/adr/ADR-016-agent-layer-output-contract-standardization.md) | Tool 輸出契約的 Agent 層標準化（鏡射契約止於 Service、MCP0013 強制） | ✅ Approved |
 
 ---
 

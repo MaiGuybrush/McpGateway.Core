@@ -29,7 +29,7 @@
 
 ## 決策 (Decision)
 
-我們決定**推行跨 Gateway 統一欄位命名標準化、結構化 DTO 回傳，並引入「提示型（Warning/Info）+ 一鍵修復（CodeFix）」的 Roslyn 分析器與啟動驗證防禦機制**。
+我們決定**推行跨 Gateway 統一欄位命名標準化、結構化輸出契約回傳，並引入「提示型（Warning/Info）+ 一鍵修復（CodeFix）」的 Roslyn 分析器與啟動驗證防禦機制**。
 
 > **核心架構定位**：  
 > **這項工作是 MCP Gateway 從「各自為政的 API 包裝器」升級為「企業級 Agent 工具生態系」的關鍵分水嶺。**  
@@ -37,28 +37,29 @@
 
 具體決策包含以下四大支柱：
 
-### 1. 全面淘汰 Markdown，回傳強型別不可變 DTO (Structured Content)
-* 淘汰純文字 Markdown 拼接字串回傳，所有 Tool 統一回傳不可變強型別 Record DTO。
-* 標註 `[McpServerTool(UseStructuredContent = true)]`，使 ModelContextProtocol SDK 自動掃描 DTO 屬性上的 `[property: Description("...")]` 並在 `tools/list` 暴露標準 JSON Schema（`outputSchema`）。
+### 1. 全面淘汰 Markdown，回傳強型別不可變輸出契約 (Structured Content)
+* 淘汰純文字 Markdown 拼接字串回傳，所有 Tool 統一回傳不可變強型別 Record 輸出契約（Output Contract）。
+* 標註 `[McpServerTool(UseStructuredContent = true)]`，使 ModelContextProtocol SDK 自動掃描輸出契約屬性上的 `[property: Description("...")]` 並在 `tools/list` 暴露標準 JSON Schema（`outputSchema`）。
 
-### 2. 建立單層核心詞庫治理體系 (Core Domain Vocabulary)
-* 由中央 `McpGateway.Core`（實作於 `McpGateway.Analyzers/Tier1Vocabulary.cs`）集中維護製造業/半導體/面板共通概念（如 `productId`, `eqptId`, `subEqptId`, `workCenter`, `productLine`, `stepId`, `lotId`, `workOrderId`, `glassId`, `panelId`, `waferId`, `quantityInProcess`, `yieldRate`, `status` 等）及其歷史同義別名（Aliases），為唯一權威來源。
-* 子系統專屬、不具跨系統共通性的業務詞彙（如 `driftScore`、`gpuHours`），不再透過獨立詞庫宣告，而是直接寫在對應 DTO 屬性的 `[property: Description("...")]` 字面文字中，僅受 `MCP0011`（缺 Description 必填）約束。
+### 2. 建立單層 Tier 1 詞彙治理體系 (Core Domain Vocabulary)
+* 由中央 `McpGateway.Core`（實作於 `McpGateway.Analyzers/Tier1Vocabulary.cs`）集中維護製造業/半導體/面板共通概念（如 `productId`, `eqptId`, `subEqptId`, `workCenter`, `productLine`, `stepId`, `lotId`, `workOrderId`, `glassId`, `panelId`, `waferId`, `quantityInProcess`, `yieldRate`, `status` 等）及其歷史同義別名（Aliases），為唯一**詞彙權威來源（Vocabulary Authority）**。
+* 子系統專屬、不具跨系統共通性的業務詞彙（如 `driftScore`、`gpuHours`），不再透過獨立詞庫宣告，而是直接寫在對應輸出契約屬性的 `[property: Description("...")]` 字面文字中，僅受 `MCP0011`（缺 Description 必填）約束。
 * **詞庫演進原則**：新增詞彙為純擴充（Non-breaking）；舊詞淘汰採 Deprecation 提示，不阻斷既有專案編譯。
-* **詞條描述須含語意邊界（Issue #14）**：詞條 `Description` 是 AI Skill 產生 DTO `[Description]` 與開發者判斷改名的唯一語意依據，不能只定義「一個詞是什麼」。易混淆群（時間類：持續時數/時刻/日期/時間戳記互斥；計數主體；數量 vs 比率；設備/載具/位置階層；`processId` vs `stepId`）的描述必須採三段式——定義＋辨析（「若欄位為 X 語意請用 Y」）＋格式範例；無近義詞的詞條維持一句話定義即可。名稱佔用的唯一性（別名不得撞標準名、不得由兩條詞條共享）由 `Tier1VocabularyConsistencyTests` 於 CI 強制，不靠人工註解。撰寫規範詳見 [CONTRACT_RULES.md §2.1](../../ai-tools/skills/mcp-tool-dto-builder/CONTRACT_RULES.md)。
-* > 原規劃中曾設計「Tier 2 專案本地字典」（各專案自建 `mcp-glossary.json` 自主擴充、不需等待中央發版），但該機制從未被任何分析器實際讀取，屬於未落地的設計；詳見 [Issue #11](http://tncimweb.cminl.oa/git-server/CIM-1-3-1/McpGateway.Core/issues/11) 之分析與收斂決議。
+* **詞條描述須含語意邊界（Issue #14）**：詞條 `Description` 是 AI Skill 產生輸出契約 `[Description]` 與開發者判斷改名的唯一語意依據，不能只定義「一個詞是什麼」。易混淆群（時間類：持續時數/時刻/日期/時間戳記互斥；計數主體；數量 vs 比率；設備/載具/位置階層；`processId` vs `stepId`）的描述必須採三段式——定義＋辨析（「若欄位為 X 語意請用 Y」）＋格式範例；無近義詞的詞條維持一句話定義即可。名稱佔用的唯一性（別名不得撞標準名、不得由兩條詞條共享）由 `Tier1VocabularyConsistencyTests` 於 CI 強制，不靠人工註解。撰寫規範詳見 [CONTRACT_RULES.md §2.1](../../ai-tools/skills/mcp-tool-dto-builder/CONTRACT_RULES.md)。
+* > 原規劃中曾設計「Tier 2 詞彙」（各專案自建 `mcp-glossary.json` 自主擴充、不需等待中央發版），但該機制從未被任何分析器實際讀取，屬於未落地的設計；詳見 [Issue #11](http://tncimweb.cminl.oa/git-server/CIM-1-3-1/McpGateway.Core/issues/11) 之分析與收斂決議。
 
 ### 3. 開發期 Roslyn 分析器與一鍵修復 (`McpGateway.Analyzers`)
-* 建立獨立的 Roslyn DiagnosticAnalyzer 套件，於 Visual Studio / VS Code 即時提示：
-  * **`MCP0010` (Warning)**：偵測到已知別名（如 `ProductCode`），提示「建議更換為標準名稱 `productId`」。
-  * **`MCP0011` (Warning)**：偵測到 DTO 公開屬性遺漏 `[Description]`，提醒為 LLM 補齊中文語意說明。
-  * **`MCP0012` (Info)**：檢查是否符合 CamelCase 命名約定。
-* **診斷訊息須送達詞條描述（Issue #14）**：`MCP0010` 本質上是需要人判斷的語意提議（分析器只看名稱，無法驗證欄位實際語意），因此警告與 Code Fix 標題必須完整附帶詞條 `Description`（含辨析句），讓開發者/Agent 在判斷現場就有依據自行否決錯誤建議（例：時刻欄位被建議改為時數詞時應忽略），而非只能照抄改名。三條診斷與 Code Fix 標題以繁體中文呈現，與詞條描述語言一致；診斷 ID 不變，`#pragma warning disable` 與 `[SuppressMessage]` 壓制機制不受影響。
+* 建立 Roslyn DiagnosticAnalyzer（依 [ADR-015](ADR-015-single-package-analyzers-merge.md) 合併打包於 `McpGateway.Core` 單一套件），於 Visual Studio / VS Code 即時提示：
+  * **`MCP0010` (Warning)**：偵測到已知別名（如 `ProductCode`），提示「建議更換為標準名稱 `productId`」並附帶詞條描述。
+  * **`MCP0011` (Warning)**：偵測到公開屬性遺漏 `[Description]`，提醒為 LLM 補齊中文語意說明。
+  * **`MCP0012` (Info)**：檢查是否符合 CamelCase / PascalCase 無底線命名約定。
+  * **`MCP0013` (Info / Warning)**：強制**輸出契約**不得標註 `[JsonPropertyName]`，使鏡射契約止於 Service 層（由 [ADR-016](ADR-016-agent-layer-output-contract-standardization.md) 擴充）。
+* **診斷訊息須送達詞條描述（Issue #14）**：`MCP0010` 本質上是需要人判斷的語意提議（分析器只看名稱，無法驗證欄位實際語意），因此警告與 Code Fix 標題必須完整附帶詞條 `Description`（含辨析句），讓開發者/Agent 在判斷現場就有依據自行否決錯誤建議（例：時刻欄位被建議改為時數詞時應忽略），而非只能照抄改名。診斷與 Code Fix 標題以繁體中文呈現，與詞條描述語言一致；診斷 ID 不變，`#pragma warning disable` 與 `[SuppressMessage]` 壓制機制不受影響。
 * 提供 `CodeFixProvider` 支援 IDE 燈泡一鍵自動更名與補齊 `[property: Description]` 範本。
 * 支援標準 `#pragma warning disable` 與 `[SuppressMessage]` 壓制特定業務例外。
 
 ### 4. 啟動期驗證器遞迴防禦 (`ToolStartupValidator`)
-* 擴充 `ToolStartupValidator`（Rule #7），於 Gateway 啟動時反射掃描註冊 Tool 的 DTO 物件圖譜（遞迴至清單項目與巢狀物件）。
+* 擴充 `ToolStartupValidator`（Rule #7），於 Gateway 啟動時反射掃描註冊 Tool 的輸出契約物件圖譜（遞迴至清單項目與巢狀物件）。
 * 若發現遺漏 Description 僅在日誌輸出 Warning Log，不阻擋伺服器啟動。
 
 ---
@@ -67,22 +68,25 @@
 
 ### 正面影響 (Positive)
 1. **跨工具鏈接能力（Tool Chaining）大幅躍升**：跨 Gateway 的實體識別碼一致，LLM 能夠以零推理成本直接進行工具間的參數傳遞與串接。
-2. **結構化二次運算支援**：前端、Agent 與下游自動化流程可以直接針對 DTO 欄位進行過濾、排序、統計運算與圖表生成。
+2. **結構化二次運算支援**：前端、Agent 與下游自動化流程可以直接針對輸出契約欄位進行過濾、排序、統計運算與圖表生成。
 3. **平衡規範與開發彈性**：採 Warning + CodeFix 模式，為開發者鋪平道路（Paved Road），既能導正歷史壞味道，又不會阻礙新業務的快速迭代。
 4. **全樹狀結構語意透明度**：深層巢狀物件皆具備 Description，確保 LLM 在解析明細清單（`items`）時具備完整的語意理解。
 
 ### 負面影響 / 代價 (Trade-offs & Mitigation)
-1. **專案建置依賴增加**：各 Gateway 專案需引用 `McpGateway.Analyzers`。
-   * *緩解*：Analyzer 設定為 `OutputItemType="Analyzer"` 且 `ReferenceOutputAssembly="false"`，不會增加產出二進位體積或 Runtime 依賴。
-2. **DTO 撰寫門檻略微提升**：開發者需要為每個公開屬性撰寫 `[Description]`。
+1. **分析器隨 Core 套件發佈**：各 Gateway 專案需載入 Roslyn 分析器。
+   * *緩解*：依 [ADR-015](ADR-015-single-package-analyzers-merge.md)，`McpGateway.Analyzers.dll` 已合併封裝於 `McpGateway.Core` NuGet 套件的 `analyzers/dotnet/cs/` 目錄，各部門專案只需安裝 `McpGateway.Core` 即自動生效，無額外套件管理成本，亦不增加產出二進位體積或 Runtime 依賴。
+2. **契約撰寫門檻略微提升**：開發者需要為每個公開屬性撰寫 `[Description]`。
    * *緩解*：透過 CodeFix 燈泡一鍵插入範本，且要求寫中文說明比記住英文命名容易得多。
 
 ---
 
 ## 相關參考文件 (References)
+* [Issue #11: 欄位命名詞彙治理機制（Tier 1 / Tier 2）名實不符與重複定義](../../issue/issue-11-glossary-tier-governance.md)
 * [Issue #14: 詞彙庫缺乏語意邊界，且詞條描述未送達命名判斷現場](../../issue/issue-14-vocabulary-semantic-boundary.md)（2026-10-22 修訂的完整分析與決議）
 * [ADR-003: 描述文字提供機制 (內聯屬性模式)](ADR-003-config-driven-descriptions.md)
 * [ADR-004: 啟動時驗證機制](ADR-004-startup-validation.md)
 * [ADR-009: 多部門 Gateway 拆分架構](ADR-009-department-gateway-split.md)
+* [ADR-015: Core 單一套件合併發布 Analyzers](ADR-015-single-package-analyzers-merge.md)
+* [ADR-016: Tool 輸出契約的 Agent 層標準化（鏡射契約止於 Service、MCP0013 強制）](ADR-016-agent-layer-output-contract-standardization.md)
 * 規格需求書：`McpGateway.Report/docs/SPEC-MCP-TOOL-FIELD-STANDARDIZATION.md`
 * 開發者手冊：`McpGateway.Report/docs/DEVELOPER-GUIDE-FIELD-STANDARDIZATION.md`

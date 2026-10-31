@@ -31,7 +31,7 @@ Dynamically resolve the authoritative `Tier1Vocabulary.cs` using the 2-tier prob
    - Inspect `.csproj` / `.sln` / `Directory.Build.props` project references (`<ProjectReference Include="...McpGateway.Analyzers..." />`) and resolve target paths.
    - If found, read directly and extract all `GlossaryEntry` definitions into context.
 2. **Remote Probe (Tier 1B)**:
-   - If local search fails, inspect `<PackageReference Include="McpGateway.Analyzers" Version="..." />` for the release tag.
+   - If local search fails, inspect `<PackageReference Include="McpGateway.Core" Version="..." />` (or legacy `McpGateway.Analyzers`) for the release tag.
    - Fetch `Tier1Vocabulary.cs` via Git / `tea` CLI into `.scratch/tier1-vocab/` and parse definitions.
    - Fallback: Prompt developer for the local file path or Gitea repository URL.
 
